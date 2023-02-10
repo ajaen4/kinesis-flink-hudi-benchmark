@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "../../ocs-git-repos/ddna-nullooma-config-1"
+		},
+		{
+			"name": "ddna-redshift-views-materializer-1",
+			"path": "../../ocs-git-repos/ddna-redshift-views-materializer-1"
+		},
+		{
+			"path": "../../ocs-git-repos/ddna-costs-saving"
+		}
+	],
+	"settings": {}
+}
