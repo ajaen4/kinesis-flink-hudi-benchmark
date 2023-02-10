@@ -10,12 +10,12 @@ resource "aws_s3_bucket" "hudipractica" {
 
 resource "aws_s3_object" "hudipracticaflink" {
   bucket = aws_s3_bucket.hudipractica.bucket
-  key    = "flink-jar-file"
-  source = "examples-scala.jar"
+  key    = "flink-app.jar"
+  source = "flink-app.jar"
 }
 
 resource "aws_iam_role" "practicahudiflinktest" {
-  name = "practicahudiflinktest"
+  name = "hudi-flink-role"
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
@@ -34,6 +34,46 @@ resource "aws_iam_role" "practicahudiflinktest" {
       },
     ]
   })
+
+  inline_policy {
+    name = "s3-policy"
+    policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Action   = ["s3:*"]
+            Effect   = "Allow"
+            Resource = [
+              "arn:aws:s3:::flink-hudi-practica/",
+              "arn:aws:s3:::flink-hudi-practica/*",
+            ]
+          },
+        ]
+      })
+  }
+
+  inline_policy {
+    name = "kinesis-policy"
+    policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Action   = ["kinesis:*"]
+            Effect   = "Allow"
+            Resource = [
+              "arn:aws:kinesis:eu-west-1:482861842012:stream/kinesis-flink-hudi-stream"
+            ]
+          },
+          {
+            Action   = ["kinesis:ListShards"]
+            Effect   = "Allow"
+            Resource = [
+              "arn:aws:kinesis:eu-west-1:482861842012:stream/*"
+            ]
+          },
+        ]
+      })
+  }
 
   tags = {
     tag-key = "tag-value"
@@ -61,7 +101,7 @@ resource "aws_kinesis_stream" "kinesisflink" {
 
 resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
   name                   = "kinesis-flink-hudi-application"
-  runtime_environment    = "FLINK-1_8"
+  runtime_environment    = "FLINK-1_15"
   service_execution_role = aws_iam_role.practicahudiflinktest.arn
   application_configuration {
     application_code_configuration {
@@ -77,11 +117,11 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
 
     environment_properties {
       property_group {
-        property_group_id = "PROPERTY-GROUP-1"
-
+        property_group_id = "ProducerConfigProperties"
         property_map = {
-          "input.stream.name" = aws_kinesis_stream.kinesisflink.name
-          "table.name": "input"
+          "aws.region" = "eu-west-1"
+          "AggregationEnabled" =  "false"
+          "flink.inputstream.initpos" = "LATEST"
         }
 
       }
