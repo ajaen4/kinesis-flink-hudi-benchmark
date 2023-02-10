@@ -34,7 +34,7 @@ class KinesisStream(object):
             partition_key = "9e638d74-62b0-4e95-918f-7eb3e51e5a86"
 
 
-        self.kinesis.put_record(
+        return self.kinesis.put_record(
             StreamName=self.stream,
             Data=json.dumps(data),
             PartitionKey=partition_key
