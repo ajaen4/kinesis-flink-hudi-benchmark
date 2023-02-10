@@ -15,6 +15,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+plugins/
 lib64/
 parts/
 sdist/
@@ -108,6 +109,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.vscode/
 
 # Spyder project settings
 .spyderproject
@@ -127,4 +129,32 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.terraform/
+# Maven & Package Files
+*.jar
+*.zip
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+pom.xml.bak
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc

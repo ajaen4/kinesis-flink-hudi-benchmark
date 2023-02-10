@@ -5,7 +5,7 @@ resource "aws_s3_bucket" "flink_hudi_bucket" {
 
 resource "null_resource" "local_exec_mvn_package" {
   provisioner "local-exec" {
-    command = "cd fat_jar && mvn package"
+    command = "cd .. && make uber-jar"
   }
 }
 
@@ -64,14 +64,14 @@ resource "aws_iam_role" "flink_app_role" {
             Action   = ["kinesis:*"]
             Effect   = "Allow"
             Resource = [
-              "arn:aws:kinesis:eu-west-1:482861842012:stream/${aws_kinesis_stream.inbound_kinesis.name}"
+              "arn:aws:kinesis:*:*:stream/${aws_kinesis_stream.inbound_kinesis.name}"
             ]
           },
           {
             Action   = ["kinesis:ListShards"]
             Effect   = "Allow"
             Resource = [
-              "arn:aws:kinesis:eu-west-1:482861842012:stream/*"
+              "arn:aws:kinesis:*:*:stream/*"
             ]
           },
           {
