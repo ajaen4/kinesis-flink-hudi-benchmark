@@ -1,21 +1,21 @@
-variable "AWS_REGION" {
+variable "aws_region" {
 	type      = string
 	default   = "eu-west-1"
 }
 
-variable "BUCKET_NAME" {
+variable "bucket_name" {
   description = "S3 Bucket name"
   type        = string
   default     = "flink-hudi-practica"
 }
 
-variable "INBOUND_KINESIS" {
+variable "inbound_kinesis" {
   description = "Kinesis Stream name for inbound data"
   type        = string
   default     = "kinesis-hudi-inbound"
 }
 
-variable "OUTPUT_FORMAT" {
+variable "output_format" {
   description = "Output format stored in S3 (hudi | json | print)"
   type        = string
   default     = "hudi"

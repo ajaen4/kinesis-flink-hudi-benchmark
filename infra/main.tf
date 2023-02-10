@@ -1,11 +1,11 @@
 resource "aws_s3_bucket" "flink_hudi_bucket" {
-  bucket = var.BUCKET_NAME
+  bucket = var.bucket_name
 
 }
 
 resource "null_resource" "local_exec_mvn_package" {
   provisioner "local-exec" {
-    command = "cd fat_jar && mvn package"
+    command = "cd .. && make uber-jar"
   }
 }
 
@@ -45,11 +45,9 @@ resource "aws_iam_role" "flink_app_role" {
         Version = "2012-10-17"
         Statement = [
           {
-            Action   = ["s3:*"]
+            Action   = "s3:*"
             Effect   = "Allow"
-            Resource = [
-              "*",
-            ]
+            Resource = "*"
           },
         ]
       })
@@ -64,22 +62,18 @@ resource "aws_iam_role" "flink_app_role" {
             Action   = ["kinesis:*"]
             Effect   = "Allow"
             Resource = [
-              "arn:aws:kinesis:eu-west-1:482861842012:stream/${aws_kinesis_stream.inbound_kinesis.name}"
+              "arn:aws:kinesis:*:*:stream/${aws_kinesis_stream.inbound_kinesis.name}"
             ]
           },
           {
             Action   = ["kinesis:ListShards"]
             Effect   = "Allow"
-            Resource = [
-              "arn:aws:kinesis:eu-west-1:482861842012:stream/*"
-            ]
+            Resource = "arn:aws:kinesis:*:*:stream/*"
           },
           {
             Action   = ["glue:*"]
             Effect   = "Allow"
-            Resource = [
-              "*"
-            ]
+            Resource = "*"
           },
           {
             Action   = [
@@ -87,9 +81,7 @@ resource "aws_iam_role" "flink_app_role" {
               "cloudwatch:*"
             ]
             Effect   = "Allow"
-            Resource = [
-              "*"
-            ]
+            Resource = "*"
           },
         ]
       })
@@ -97,7 +89,7 @@ resource "aws_iam_role" "flink_app_role" {
 }
 
 resource "aws_kinesis_stream" "inbound_kinesis" {
-  name             = var.INBOUND_KINESIS
+  name             = var.inbound_kinesis
   retention_period = 24
 
   shard_level_metrics = [
@@ -117,78 +109,4 @@ resource "aws_cloudwatch_log_group" "flink_hudi_log_group" {
 resource "aws_cloudwatch_log_stream" "flink_hudi_log_stream" {
   name           = "flink-hudi"
   log_group_name = aws_cloudwatch_log_group.flink_hudi_log_group.name
-}
-
-resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
-  name                   = "FlinkHudiApp"
-  runtime_environment    = "FLINK-1_15"
-  service_execution_role = aws_iam_role.flink_app_role.arn
-
-  cloudwatch_logging_options {
-      log_stream_arn = aws_cloudwatch_log_stream.flink_hudi_log_stream.arn
-  }
-  application_configuration {
-    application_code_configuration {
-      code_content {
-        s3_content_location {
-          bucket_arn = aws_s3_bucket.flink_hudi_bucket.arn
-          file_key   = aws_s3_object.flink_hudi_s3_key.key
-        }
-      }
-      code_content_type = "ZIPFILE"
-    }
-
-    environment_properties {
-      property_group {
-        property_group_id = "kinesis.analytics.flink.run.options"
-        property_map = {
-          "python" = "flink_app.py"
-          "jarfile" = "lib/combined.jar"
-        }
-      }
-      property_group {
-        property_group_id = "consumer.config.0"
-        property_map = {
-          "aws.region" = "${var.AWS_REGION}"
-          "input.stream.name" =  "${aws_kinesis_stream.inbound_kinesis.name}"
-          "scan.stream.initpos" = "LATEST"
-        }
-      }
-
-      property_group {
-        property_group_id = "sink.config.0"
-        property_map = {
-          "output.bucket.name" = "${var.BUCKET_NAME}"
-          "output.format" = "${var.OUTPUT_FORMAT}"
-        }
-      }
-    }
-
-    flink_application_configuration {
-      parallelism_configuration {
-        auto_scaling_enabled = true
-        configuration_type   = "CUSTOM"
-        parallelism = 1
-        parallelism_per_kpu = 1
-      }
-
-      checkpoint_configuration {
-        configuration_type   = "CUSTOM"
-        checkpointing_enabled = true
-        checkpoint_interval = 5000
-      }
-
-      monitoring_configuration {
-        configuration_type = "CUSTOM"
-        log_level          = "INFO"
-        metrics_level      = "TASK"
-      }
-    }
-
-    run_configuration {
-      flink_run_configuration {
-        allow_non_restored_state = true
-      }
-    }
-  }
 }
