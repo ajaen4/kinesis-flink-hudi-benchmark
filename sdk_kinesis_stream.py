@@ -8,15 +8,10 @@ class KinesisStream(object):
     
     def __init__(self, stream):
         self.stream = stream
-
-    def _connected_client(self):
         """ Connect to Kinesis Streams """
-        access_key, secret_key, session_token = get_aws_credentials()
-        return boto3.client('kinesis',
-                            region_name="eu-west-1",
-                            aws_access_key_id=access_key,
-                            aws_secret_access_key=secret_key,
-                            aws_session_token=session_token)
+        session = boto3.Session(profile_name="practica")
+        self.kinesis =  session.client('kinesis',
+                            region_name="eu-west-1")
 
     def send_stream(self, data, partition_key=None):
         """
@@ -38,10 +33,35 @@ class KinesisStream(object):
             partition_key = uuid.uuid4()
             partition_key = "9e638d74-62b0-4e95-918f-7eb3e51e5a86"
 
-        client = self._connected_client()
-        return client.put_record(
+
+        self.kinesis.put_record(
             StreamName=self.stream,
             Data=json.dumps(data),
             PartitionKey=partition_key
         )
+
+    def read_kinesis(self, stream_name):
+        kinesis_iterator = self._get_kinesis_data_iterator(stream_name)
+        for records in kinesis_iterator:
+            if len(records['Records']) > 0:
+                print(records['Records'])
+    
+    def _get_kinesis_data_iterator(self, stream_name):
+        kinesis_stream = self.kinesis.describe_stream(StreamName=stream_name)
+        shards = kinesis_stream['StreamDescription']['Shards']
+        shard_ids = [shard['ShardId'] for shard in shards]
+
+        iter_response = self.kinesis.get_shard_iterator(
+            StreamName=stream_name,
+            ShardId=shard_ids[0],
+            ShardIteratorType="TRIM_HORIZON"
+        )
+        shard_iterator = iter_response['ShardIterator']
+
+        while True:
+            record_response = self.kinesis.get_records(ShardIterator=shard_iterator)
+            yield record_response
+            shard_iterator = record_response['NextShardIterator']
+
+    STREAM_NAME = 'kinesis-flink-hudi-stream'
 
