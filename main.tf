@@ -10,7 +10,7 @@ resource "aws_s3_bucket" "hudipractica" {
 
 resource "aws_s3_object" "hudipracticaflink" {
   bucket = aws_s3_bucket.hudipractica.bucket
-  key    = "flink-app.jar"
+  key    = "flink-app"
   source = "flink-app.jar"
 }
 
@@ -82,7 +82,7 @@ resource "aws_iam_role" "practicahudiflinktest" {
 
 resource "aws_kinesis_stream" "kinesisflink" {
   name             = "kinesis-flink-hudi-stream"
-  shard_count      = 1
+  #shard_count      = 1
   retention_period = 48
 
   shard_level_metrics = [
