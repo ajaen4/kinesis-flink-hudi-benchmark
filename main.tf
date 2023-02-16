@@ -8,10 +8,37 @@ resource "aws_s3_bucket" "hudipractica" {
 #  key    = "hudipracticafiles"
 #}
 
-resource "aws_s3_object" "hudipracticaflink" {
+data "archive_file" "s3_zip" {                                                                                                                                                                                   
+  type        = "zip"                                                                                                                                                                                                
+  source_dir  = "flink-app"                                                                                                                                                                                         
+  output_path = "myapp.zip"                                                                                                                                                                         
+} 
+
+resource "random_string" "myapp" {
+  length           = 4
+  special          = false
+}
+
+resource "aws_s3_object" "app_zip" {
   bucket = aws_s3_bucket.hudipractica.bucket
-  key    = "flink-app"
-  source = "flink-app.jar"
+  #key    = "myapp-${random_string.myapp.result}.zip"
+  key = "${sha256(data.archive_file.s3_zip.output_base64sha256)}.zip"
+  source = "${data.archive_file.s3_zip.output_path}"
+}
+
+#resource "aws_s3_object" "hudipracticaflink" {
+#  bucket = aws_s3_bucket.hudipractica.bucket
+#  key    = "myapp" #.hash to set a dynamic name in the UI
+#  source = "flink-s.jar"
+#}
+
+resource "aws_cloudwatch_log_group" "hudipracticaflink" {
+  name = "flink-hudi-practica"
+}
+
+resource "aws_cloudwatch_log_stream" "hudipracticaflink" {
+  name           = "flink-hudi-practica"
+  log_group_name = aws_cloudwatch_log_group.hudipracticaflink.name
 }
 
 resource "aws_iam_role" "practicahudiflinktest" {
@@ -74,6 +101,22 @@ resource "aws_iam_role" "practicahudiflinktest" {
         ]
       })
   }
+  inline_policy {
+    name = "cloudwatch-policy"
+    policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Action   = ["cloudwatch:*", "logs:*"]
+            Effect   = "Allow"
+            Resource = [
+              "*"
+            ]
+          },
+        ]
+      })
+  }
+
 
   tags = {
     tag-key = "tag-value"
@@ -108,7 +151,8 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
       code_content {
         s3_content_location {
           bucket_arn = aws_s3_bucket.hudipractica.arn
-          file_key   = aws_s3_object.hudipracticaflink.key
+          #file_key   = "myapp.zip"
+          file_key   = aws_s3_object.app_zip.key
         }
       }
 
@@ -117,15 +161,29 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
 
     environment_properties {
       property_group {
-        property_group_id = "ProducerConfigProperties"
+        property_group_id = "consumer.config.0"
         property_map = {
           "aws.region" = "eu-west-1"
           "AggregationEnabled" =  "false"
           "flink.inputstream.initpos" = "LATEST"
         }
-
+      }  
+      property_group {
+        property_group_id = "kinesis.analytics.flink.run.options"
+        property_map = {
+          "python" = "streaming-file-sink.py"
+          "jarfile" = "lib/flink-sql-connector-kinesis-1.15.2.jar"
+        }
+      }
+      property_group {
+        property_group_id = "sink.config.0"
+        property_map = {
+          "output.bucket.name" = "flink-hudi-practica"
+        }
       }
     }
   }
+  cloudwatch_logging_options {
+    log_stream_arn = aws_cloudwatch_log_stream.hudipracticaflink.arn
+  }
 }
-
