@@ -117,7 +117,7 @@ def main():
     sink_property_group_key = "sink.config.0"
 
     input_stream_key = "input.stream.name"
-    input_region_key = "aws.region"
+    input_region_key = "aws.input_property_mapregion"
     input_starting_position_key = "scan.stream.initpos"
 
     output_sink_key = "output.bucket.name"

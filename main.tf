@@ -22,7 +22,7 @@ resource "random_string" "myapp" {
 resource "aws_s3_object" "app_zip" {
   bucket = aws_s3_bucket.hudipractica.bucket
   #key    = "myapp-${random_string.myapp.result}.zip"
-  key = "${sha256(data.archive_file.s3_zip.output_base64sha256)}.zip"
+  key = join("-",["myapp","${substr(sha256(data.archive_file.s3_zip.output_base64sha256),0,4)}.zip"])
   source = "${data.archive_file.s3_zip.output_path}"
 }
 
@@ -164,8 +164,11 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
         property_group_id = "consumer.config.0"
         property_map = {
           "aws.region" = "eu-west-1"
+          "aws.input_property_mapregion" = "eu-west-1"
           "AggregationEnabled" =  "false"
+          "input.stream.name" = "kinesis-flink-hudi-stream"
           "flink.inputstream.initpos" = "LATEST"
+          "scan.stream.initpos" = "LATEST"
         }
       }  
       property_group {

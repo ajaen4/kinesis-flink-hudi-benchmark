@@ -1,0 +1,23 @@
+[
+  {
+          "PropertyGroupId": "kinesis.analytics.flink.run.options",
+          "PropertyMap": {
+            "python": "streaming-file-sink.py",
+            "jarfile": "lib/flink-sql-connector-kinesis-1.15.2.jar"
+
+          }
+        },
+        {
+          "PropertyGroupId": "consumer.config.0",
+          "PropertyMap": {
+            "input.stream.name": "kinesis-flink-hudi-stream",
+            "scan.stream.initpos": "LATEST",
+            "aws.region": "eu-west-1"
+          }
+        },
+  {
+    "PropertyGroupId": "sink.config.0",
+    "PropertyMap": {
+      "output.bucket.name": "flink-hudi-practica"
+    }
+  }]
