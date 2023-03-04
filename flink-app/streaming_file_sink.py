@@ -3,17 +3,13 @@ import os
 import json
 
 
-env_settings = (
-    EnvironmentSettings
-    .new_instance()
-    .in_streaming_mode()
-    .build()
-)
+env_settings = EnvironmentSettings.in_streaming_mode()
+
 
 table_env = StreamTableEnvironment.create(environment_settings=env_settings)
 #table_env.get_config().set("execution.checkpointing.mode", "EXACTLY_ONCE")
 #table_env.get_config().set("execution.checkpointing.interval", "5000")
-is_local = True
+is_local = False
 
 
 def set_local_jar():
