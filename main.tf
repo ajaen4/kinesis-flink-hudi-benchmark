@@ -56,7 +56,7 @@ resource "aws_iam_role" "practicahudiflinktest" {
         Principal = {
           Service = "kinesisanalytics.amazonaws.com"
           #type        = "Service"
-          #identifiers = ["kinesis_analytics.amazonaws.com"]
+          #identifiers = ["kinesisanalytics.amazonaws.com"]
         }
       },
     ]
@@ -123,6 +123,11 @@ resource "aws_iam_role" "practicahudiflinktest" {
   }
 }
 
+variable test_jars {
+  type = list
+  default = ["lib/flink-sql-connector-kinesis-1.15.2.jar", "lib/fake_flink.jar"]
+}
+
 resource "aws_kinesis_stream" "kinesisflink" {
   name             = "kinesis-flink-hudi-stream"
   #shard_count      = 1
@@ -164,18 +169,22 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
         property_group_id = "consumer.config.0"
         property_map = {
           "aws.region" = "eu-west-1"
-          "aws.input_property_mapregion" = "eu-west-1"
-          "AggregationEnabled" =  "false"
+          #"aws.input_property_mapregion" = "eu-west-1"
+          #"AggregationEnabled" =  "false"
           "input.stream.name" = "kinesis-flink-hudi-stream"
-          "flink.inputstream.initpos" = "LATEST"
+          #"flink.inputstream.initpos" = "LATEST"
           "scan.stream.initpos" = "LATEST"
         }
       }  
       property_group {
         property_group_id = "kinesis.analytics.flink.run.options"
         property_map = {
-          "python" = "streaming-file-sink.py"
-          "jarfile" = "lib/flink-sql-connector-kinesis-1.15.2.jar"
+          
+          "python" = "streaming_file_sink.py"
+          "jarfile" = "lib/combined-1.jar"
+          #"pyArchives" = "lib_test/jar_zip.zip"
+          #"jarfile" = "lib_test/jar_zip.jar"
+          #"jarfile" = var.test_jars[*]
         }
       }
       property_group {
@@ -183,6 +192,27 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
         property_map = {
           "output.bucket.name" = "flink-hudi-practica"
         }
+      }
+    }
+
+    flink_application_configuration {
+      checkpoint_configuration {
+        configuration_type = "CUSTOM"
+        checkpointing_enabled = true
+        checkpoint_interval = 5000
+      }
+
+      monitoring_configuration {
+        configuration_type = "CUSTOM"
+        log_level          = "DEBUG"
+        metrics_level      = "TASK"
+      }
+
+      parallelism_configuration {
+        auto_scaling_enabled = true
+        configuration_type   = "CUSTOM"
+        parallelism          = 1
+        parallelism_per_kpu  = 1
       }
     }
   }
