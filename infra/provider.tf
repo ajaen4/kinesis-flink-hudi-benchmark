@@ -1,4 +1,4 @@
 provider "aws" {
-  profile = "practica"
+  profile = "practica_cloud"
   region = var.AWS_REGION
 }
