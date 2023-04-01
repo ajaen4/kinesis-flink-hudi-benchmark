@@ -28,8 +28,8 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
       property_group {
         property_group_id = "consumer.config.0"
         property_map = {
-          "aws.region" = "${var.aws_region}"
-          "input.stream.name" =  "${aws_kinesis_stream.inbound_kinesis.name}"
+          "aws.region" = var.aws_region
+          "input.stream.name" =  aws_kinesis_stream.inbound_kinesis.name
           "scan.stream.initpos" = "LATEST"
         }
       }
@@ -37,8 +37,8 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
       property_group {
         property_group_id = "sink.config.0"
         property_map = {
-          "output.bucket.name" = "${var.bucket_name}"
-          "output.format" = "${var.output_format}"
+          "output.bucket.name" = var.bucket_name
+          "output.format" = var.output_format
         }
       }
     }
