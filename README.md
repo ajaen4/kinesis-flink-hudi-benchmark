@@ -2,7 +2,7 @@
 
 ## Contributors
 
-This repository has been developed primarily by [@adrij](https://github.com/adrijh) and [@alfonjerezi](https://github.com/alfonjerezi).
+This repository has been developed primarily by [@ajaen4](https://github.com/ajaen4), [@adrij](https://github.com/adrijh) and [@alfonjerezi](https://github.com/alfonjerezi).
 
 ## Introduction
 
@@ -86,7 +86,26 @@ terraform <plan/apply/destroy> -var-file=vars/flink-hudi.tfvars
 
 We will use the value copied in the previous chapter, the state bucket name, to substitute the <OUTPUT_FROM_BOOTSTRAPER_TERRAFORM> value in the infra/backend.tf file.
 
-## To take into account (Adri fill it with the jar details)
+## Sending events with Locust
+
+Once deployed, you can make use of the provided Locust application to send events to the Kinesis Stream. Just make sure that your AWS profile and Kinesis Stream name are properly configured in ```event_generation/.env``` and run
+
+```bash
+cd event_generation
+locust
+```
+
+A Locust process will start and you can access its UI in http://0.0.0.0:8089/. You can modify number of users and rate, but the defaults will suffice for testing the application.
+
+## Application details
+
+Some dependencies are needed for the Flink application to work properly which entail some explanation
+
+- `flink-sql-connector-kinesis` - Fundamental connector for our Flink application to be able to read from a Kinesis Stream.
+- `flink-s3-fs-hadoop` - Allows the application to operate on top of S3.
+- `hudi-flink1.15-bundle` - Package provided by Hudi developers, with all the necessary dependencies to work with the technology.
+- `hadoop-mapreduce-client-core` - Additional dependency required for writing to Hudi to work correctly in KDA. It is possible that in future versions of the Hudi Bundle this dependency will not be needed.
+
 
 ## License
 
