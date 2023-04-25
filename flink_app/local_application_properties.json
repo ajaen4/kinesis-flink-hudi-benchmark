@@ -11,7 +11,7 @@
     {
       "PropertyGroupId": "consumer.config.0",
       "PropertyMap": {
-        "input.stream.name": "kinesis-hudi-inbound",
+        "input.stream.name": "inbound_kinesis",
         "scan.stream.initpos": "LATEST",
         "aws.region": "eu-west-1"
       }

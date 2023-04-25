@@ -33,7 +33,7 @@ class StockUser(User):
         return json.dumps(
             {
                 "event_id": event_id,
-                "event_time": datetime.now().isoformat(),
+                "event_time": datetime.utcnow().isoformat(),
                 "ticker": ticker_value,
                 "price": round(random.random() * 100, 2),
             }

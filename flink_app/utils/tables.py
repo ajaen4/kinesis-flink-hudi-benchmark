@@ -10,7 +10,8 @@ SINK_SCHEMA = """
     event_id varchar,
     ticker VARCHAR(6),
     price DOUBLE,
-    event_time TIMESTAMP(3)
+    event_time TIMESTAMP(3),
+    processing_time TIMESTAMP_LTZ(3)
 """
 
 HUDI_OPTIONS = """
@@ -18,7 +19,17 @@ HUDI_OPTIONS = """
     'hoodie.datasource.write.recordkey.field' = 'event_id',
     'hoodie.embed.timeline.server' = 'false',
     'read.streaming.enabled' = 'true',
-    'metadata.compaction.delta_commits'='1'
+    'read.streaming.skip_compaction' = 'true',
+    'write.bucket_assign.tasks'='1',
+    'compaction.delta_seconds'='120',
+    'compaction.delta_commits'='2',
+    'compaction.trigger.strategy'='num_or_time',
+    'hive_sync.enable' = 'true',
+    'hive_sync.db' = 'hudi',
+    'hive_sync.table' = 'ticker_hudi',
+    'hive_sync.mode' = 'glue',
+    'hive_sync.partition_fields' = 'ticker',
+    'hive_sync.use_jdbc' = 'false'
 """
 
 

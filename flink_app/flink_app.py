@@ -41,7 +41,16 @@ def main() -> None:
         )
     )
     table_result = table_env.execute_sql(
-        "INSERT INTO {0} SELECT * FROM {1}".format(output_table_name, input_table_name)
+        """INSERT INTO {0}
+            SELECT 
+                event_id,
+                ticker,
+                price,
+                event_time,
+                PROCTIME() as processing_time
+            FROM {1}""".format(
+            output_table_name, input_table_name
+        )
     )
 
     if is_local:
