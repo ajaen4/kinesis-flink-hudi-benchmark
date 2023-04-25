@@ -23,6 +23,12 @@ HUDI_OPTIONS = """
     'compaction.delta_seconds'='120',
     'compaction.delta_commits'='2',
     'compaction.trigger.strategy'='num_or_time',
+    'hive_sync.enable' = 'true',
+    'hive_sync.db' = 'hudi',
+    'hive_sync.table' = 'ticker_hudi',
+    'hive_sync.mode' = 'glue',
+    'hive_sync.partition_fields' = 'ticker',
+    'hive_sync.use_jdbc' = 'false'
 """
 
 
