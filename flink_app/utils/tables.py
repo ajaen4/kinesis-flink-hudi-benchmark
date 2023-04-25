@@ -18,13 +18,7 @@ HUDI_OPTIONS = """
     'hoodie.datasource.write.recordkey.field' = 'event_id',
     'hoodie.embed.timeline.server' = 'false',
     'read.streaming.enabled' = 'true',
-    'metadata.compaction.delta_commits'='1',
-    'hive_sync.enable' = 'true',
-    'hive_sync.db' = 'hudi',
-    'hive_sync.table' = 'hudi_benchmark',
-    'hive_sync.mode' = 'glue',
-    'hive_sync.partition_fields' = 'ticker',
-    'hive_sync.use_jdbc' = 'false'
+    'metadata.compaction.delta_commits'='1'
 """
 
 
