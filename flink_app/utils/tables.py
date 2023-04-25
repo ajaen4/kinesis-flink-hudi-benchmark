@@ -18,7 +18,13 @@ HUDI_OPTIONS = """
     'hoodie.datasource.write.recordkey.field' = 'event_id',
     'hoodie.embed.timeline.server' = 'false',
     'read.streaming.enabled' = 'true',
-    'metadata.compaction.delta_commits'='1'
+    'metadata.compaction.delta_commits'='1',
+    'hive_sync.enable' = 'true',
+    'hive_sync.db' = 'hudi',
+    'hive_sync.table' = 'hudi-benchmark',
+    'hive_sync.mode' = 'glue',
+    'hive_sync.partition_fields' = 'ticker',
+    'hive_sync.use_jdbc' = 'false'
 """
 
 
@@ -57,7 +63,7 @@ def create_json_table(table_name: str, bucket_name: str) -> str:
         )
         WITH (
             'connector'='filesystem',
-            'path'='s3a://{bucket_name}/flink_output_json/',
+            'path'='s3a://{bucket_name}/',
             'format'='json'
         )
     """.format(
@@ -75,7 +81,7 @@ def create_hudi_table(table_name: str, bucket_name: str) -> str:
         PARTITIONED BY (ticker)
         WITH (
             'connector' = 'hudi',
-            'path'='s3a://{bucket_name}/flink_output_hudi/',
+            'path'='s3a://{bucket_name}/',
             {hudi_options}
         )
     """.format(
