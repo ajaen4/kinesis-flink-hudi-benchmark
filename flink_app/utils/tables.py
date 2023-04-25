@@ -18,7 +18,11 @@ HUDI_OPTIONS = """
     'hoodie.datasource.write.recordkey.field' = 'event_id',
     'hoodie.embed.timeline.server' = 'false',
     'read.streaming.enabled' = 'true',
-    'metadata.compaction.delta_commits'='1'
+    'read.streaming.skip_compaction' = 'true',
+    'write.bucket_assign.tasks'='1',
+    'compaction.delta_seconds'='120',
+    'compaction.delta_commits'='2',
+    'compaction.trigger.strategy'='num_or_time',
 """
 
 
