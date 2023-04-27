@@ -61,6 +61,12 @@ module "endpoints" {
       subnet_ids          = module.aws_baseline_vpc.private_subnets
       tags                = { Name = "${var.tags.project}-${var.tags.environment}-ecr-api-vpc-endpoint" }
     }
+    kinesis = {
+      service             = "kinesis-streams"
+      private_dns_enabled = true
+      subnet_ids          = module.aws_baseline_vpc.private_subnets
+      tags                = { Name = "${var.tags.project}-${var.tags.environment}-kinesis-vpc-endpoint" }
+    }
   }
 
   depends_on = [aws_security_group.non_default]

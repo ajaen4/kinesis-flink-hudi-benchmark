@@ -9,11 +9,11 @@ locals {
   private_subnet_az3_id   = [module.aws_baseline_vpc.private_subnets[2]]
   private_subnet_az3_name = "az3"
 
-  worker_groups_spark_driver_low_cpu_tags = [
+  worker_groups_core_tags = [
     {
       "key"                 = "k8s.io/cluster-autoscaler/enabled"
       "propagate_at_launch" = "true"
-      "value"               = "true"
+      "value"               = "false"
     },
     {
       "key"                 = "k8s.io/cluster-autoscaler/${local.name}"
@@ -21,9 +21,22 @@ locals {
       "value"               = "owned"
     },
     {
-      "key"                 = "cluster-autoscaler.kubernetes.io/safe-to-evict"
+      "key"                 = "node-type"
+      "propagate_at_launch" = "true"
+      "value"               = "core"
+    }
+  ]
+
+  worker_groups_core_scaling_tags = [
+    {
+      "key"                 = "k8s.io/cluster-autoscaler/enabled"
       "propagate_at_launch" = "true"
       "value"               = "false"
+    },
+    {
+      "key"                 = "node-type"
+      "propagate_at_launch" = "true"
+      "value"               = "core-scaling"
     }
   ]
 }
@@ -56,47 +69,88 @@ module "eks" {
   workers_additional_policies = [
     "arn:aws:iam::aws:policy/AmazonS3FullAccess",
     "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy",
+    "arn:aws:iam::aws:policy/AmazonKinesisFullAccess",
+    "arn:aws:iam::aws:policy/AmazonKinesisAnalyticsFullAccess"
   ]
 
   worker_groups_launch_template = [
     {
-      name                          = "${var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_name}-${local.private_subnet_az1_name}"
+      name                          = "${var.aws_baseline_eks.worker_groups_core_name}-${local.private_subnet_az1_name}"
       subnets                       = local.private_subnet_az1_id
-      override_instance_types       = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_instance_type
-      additional_userdata           = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_additional_userdata
-      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_asg_desired_capacity
-      asg_max_size                  = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_asg_max_size
-      asg_min_size                  = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_asg_min_size
-      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_kubelet_extra_args
-      suspended_processes           = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_suspended_processes
-      additional_security_group_ids = [module.sg_eks_worker_group_spark.this_security_group_id]
-      tags                          = local.worker_groups_spark_driver_low_cpu_tags
+      instance_type                 = var.aws_baseline_eks.worker_groups_core_instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_core_additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_core_suspended_processes
+      additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
+      tags                          = local.worker_groups_core_tags
     },
     {
-      name                          = "${var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_name}-${local.private_subnet_az2_name}"
+      name                          = "${var.aws_baseline_eks.worker_groups_core_name}-${local.private_subnet_az2_name}"
       subnets                       = local.private_subnet_az2_id
-      override_instance_types       = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_instance_type
-      additional_userdata           = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_additional_userdata
-      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_asg_desired_capacity
-      asg_max_size                  = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_asg_max_size
-      asg_min_size                  = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_asg_min_size
-      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_kubelet_extra_args
-      suspended_processes           = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_suspended_processes
-      additional_security_group_ids = [module.sg_eks_worker_group_spark.this_security_group_id]
-      tags                          = local.worker_groups_spark_driver_low_cpu_tags
+      instance_type                 = var.aws_baseline_eks.worker_groups_core_instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_core_additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_core_suspended_processes
+      additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
+      tags                          = local.worker_groups_core_tags
     },
     {
-      name                          = "${var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_name}-${local.private_subnet_az3_name}"
+      name                          = "${var.aws_baseline_eks.worker_groups_core_name}-${local.private_subnet_az3_name}"
       subnets                       = local.private_subnet_az3_id
-      override_instance_types       = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_instance_type
-      additional_userdata           = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_additional_userdata
-      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_asg_desired_capacity
-      asg_max_size                  = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_asg_max_size
-      asg_min_size                  = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_asg_min_size
-      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_kubelet_extra_args
-      suspended_processes           = var.aws_baseline_eks.worker_groups_spark_driver_low_cpu_suspended_processes
-      additional_security_group_ids = [module.sg_eks_worker_group_spark.this_security_group_id]
-      tags                          = local.worker_groups_spark_driver_low_cpu_tags
+      instance_type                 = var.aws_baseline_eks.worker_groups_core_instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_core_additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_core_suspended_processes
+      additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
+      tags                          = local.worker_groups_core_tags
+    },
+    {
+      name                          = "${var.aws_baseline_eks.worker_groups_core_scaling_name}-${local.private_subnet_az1_name}"
+      subnets                       = local.private_subnet_az1_id
+      instance_type                 = var.aws_baseline_eks.worker_groups_core_scaling_instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_core_scaling_additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_scaling_asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_scaling_kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_core_scaling_suspended_processes
+      additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
+      tags                          = local.worker_groups_core_scaling_tags
+    },
+    {
+      name                          = "${var.aws_baseline_eks.worker_groups_core_scaling_name}-${local.private_subnet_az2_name}"
+      subnets                       = local.private_subnet_az2_id
+      instance_type                 = var.aws_baseline_eks.worker_groups_core_scaling_instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_core_scaling_additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_scaling_asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_scaling_kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_core_scaling_suspended_processes
+      additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
+      tags                          = local.worker_groups_core_scaling_tags
+    },
+    {
+      name                          = "${var.aws_baseline_eks.worker_groups_core_scaling_name}-${local.private_subnet_az3_name}"
+      subnets                       = local.private_subnet_az3_id
+      instance_type                 = var.aws_baseline_eks.worker_groups_core_scaling_instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_core_scaling_additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_scaling_asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_scaling_kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_core_scaling_suspended_processes
+      additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
+      tags                          = local.worker_groups_core_scaling_tags
     },
   ]
 
@@ -119,6 +173,7 @@ resource "aws_eks_addon" "aws_eks_addon_csi" {
     module.eks
   ]
 }
+
 resource "aws_eks_addon" "aws_eks_addon_cni" {
   cluster_name      = module.eks.cluster_id
   addon_name        = "vpc-cni"
@@ -172,11 +227,11 @@ module "sg_eks_worker_group_spot" {
   tags         = var.tags
 }
 
-module "sg_eks_worker_group_spark" {
+module "sg_eks_worker_group_locust" {
   source              = "terraform-aws-modules/security-group/aws"
   version             = "3.2.0"
-  name                = "sg_eks_worker_group_spark"
-  description         = "Security group for eks worker group spark_low_cpu"
+  name                = "sg_eks_worker_group_locust"
+  description         = "Security group for eks worker group locust_low_cpu"
   vpc_id              = module.aws_baseline_vpc.vpc_id
   ingress_cidr_blocks = ["0.0.0.0/0"]
 
