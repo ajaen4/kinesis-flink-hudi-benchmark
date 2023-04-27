@@ -1,12 +1,12 @@
 tags = {
   terraform   = "true"
   environment = "dev"
-  project     = "spark-on-aws-eks"
+  project     = "locust-on-aws-eks"
   region      = "eu-west-1"
 }
 
 aws_baseline_vpc = {
-  vpc_name                         = "spark-on-aws-eks"
+  vpc_name                         = "locust-on-aws-eks"
   cidr                             = "10.1.0.0/16"
   azs                              = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
   private_subnets                  = ["10.1.0.0/20", "10.1.16.0/20", "10.1.32.0/20"]
@@ -41,13 +41,21 @@ aws_baseline_eks = {
   attach_worker_cni_policy        = true
   cluster_enabled_log_types       = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
+  worker_groups_core_name                 = "core-group-on-demand"
+  worker_groups_core_instance_type        = "m5.xlarge"
+  worker_groups_core_additional_userdata  = ""
+  worker_groups_core_asg_desired_capacity = 1
+  worker_groups_core_asg_max_size         = 10
+  worker_groups_core_asg_min_size         = 1
+  worker_groups_core_kubelet_extra_args   = "--node-labels=node.kubernetes.io/lifecycle=ondemand,node-type=core"
+  worker_groups_core_suspended_processes  = ["AZRebalance"]
 
-  worker_groups_spark_driver_low_cpu_name                 = "spark-group-driver-workload-low-cpu-on-demand"
-  worker_groups_spark_driver_low_cpu_instance_type        = ["m6a.large", "m5.large"]
-  worker_groups_spark_driver_low_cpu_additional_userdata  = ""
-  worker_groups_spark_driver_low_cpu_asg_desired_capacity = 0
-  worker_groups_spark_driver_low_cpu_asg_max_size         = 100
-  worker_groups_spark_driver_low_cpu_asg_min_size         = 0
-  worker_groups_spark_driver_low_cpu_kubelet_extra_args   = "--node-labels=node.kubernetes.io/lifecycle=ondemand,workload=workload-low-cpu-driver"
-  worker_groups_spark_driver_low_cpu_suspended_processes  = ["AZRebalance"]
+  worker_groups_core_scaling_name                 = "core-scaling-group-on-demand"
+  worker_groups_core_scaling_instance_type        = "m6a.2xlarge"
+  worker_groups_core_scaling_additional_userdata  = ""
+  worker_groups_core_scaling_asg_desired_capacity = 1
+  worker_groups_core_scaling_asg_max_size         = 3
+  worker_groups_core_scaling_asg_min_size         = 1
+  worker_groups_core_scaling_kubelet_extra_args   = "--node-labels=node.kubernetes.io/lifecycle=ondemand,node-type=core-scaling"
+  worker_groups_core_scaling_suspended_processes  = ["AZRebalance"]
 }

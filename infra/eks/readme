@@ -1,0 +1,24 @@
+aws eks --region eu-west-1 update-kubeconfig --name cluster-locust-on-aws-eks-dev
+
+
+# Helm chart repo setting
+helm repo add deliveryhero "https://charts.deliveryhero.io/"
+helm repo update deliveryhero
+
+# Check
+helm repo list | egrep "NAME|deliveryhero"
+
+# Follow the next guide https://aws.amazon.com/blogs/containers/load-testing-your-workload-running-on-amazon-eks-with-locust/ or https://github.com/deliveryhero/helm-charts/tree/master/stable/locust
+
+kubectl create configmap eks-loadtest-locustfile --from-file ./locustfile.py
+
+helm upgrade --install locust deliveryhero/locust --values ./templates/locust_values.yaml \
+ --set loadtest.name=eks-loadtest \
+ --set loadtest.locust_locustfile_configmap=eks-loadtest-locustfile \
+ --set loadtest.locust_locustfile=locustfile.py \
+ --set worker.hpa.enabled=true \
+ --set worker.hpa.minReplicas=5
+
+#Delete helm locust
+helm delete locust
+kubectl delete configmap eks-loadtest-locustfile
