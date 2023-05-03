@@ -20,13 +20,16 @@ HUDI_OPTIONS = """
     'hoodie.embed.timeline.server' = 'false',
     'read.streaming.enabled' = 'true',
     'read.streaming.skip_compaction' = 'true',
-    'write.bucket_assign.tasks'='1',
-    'compaction.delta_seconds'='120',
-    'compaction.delta_commits'='2',
+    'changelog.enabled'='true',
+    'compaction.delta_seconds'='60',
+    'compaction.delta_commits'='1',
     'compaction.trigger.strategy'='num_or_time',
+    'hoodie.cleaner.commits.retained' = '4',
+    'hoodie.keep.min.commits' = '20',
+    'hoodie.keep.max.commits' = '30',
     'hive_sync.enable' = 'true',
     'hive_sync.db' = 'hudi',
-    'hive_sync.table' = 'ticker_hudi',
+    'hive_sync.table' = 'ticker_hudi_mor',
     'hive_sync.mode' = 'glue',
     'hive_sync.partition_fields' = 'ticker',
     'hive_sync.use_jdbc' = 'false'
@@ -50,7 +53,8 @@ def create_kinesis_table(
             'aws.region' = '{region}',
             'scan.stream.initpos' = '{stream_initpos}',
             'format' = 'json',
-            'json.timestamp-format.standard' = 'ISO-8601'
+            'json.timestamp-format.standard' = 'ISO-8601',
+            'scan.shard.adaptivereads' = 'true'
         )
     """.format(
         table_name=table_name,
@@ -66,6 +70,7 @@ def create_json_table(table_name: str, bucket_name: str) -> str:
         CREATE TABLE {table_name} (
             {table_schema}
         )
+        PARTITIONED BY (ticker)
         WITH (
             'connector'='filesystem',
             'path'='s3a://{bucket_name}/flink_output_json/',
@@ -86,7 +91,7 @@ def create_hudi_table(table_name: str, bucket_name: str) -> str:
         PARTITIONED BY (ticker)
         WITH (
             'connector' = 'hudi',
-            'path'='s3a://{bucket_name}/flink_output_hudi/',
+            'path'='s3a://{bucket_name}/mor_table/',
             {hudi_options}
         )
     """.format(
