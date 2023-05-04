@@ -1,3 +1,5 @@
+from .enums import HudiTableType
+
 SOURCE_SCHEMA = """
     event_id varchar,
     ticker VARCHAR(6),
@@ -15,7 +17,7 @@ SINK_SCHEMA = """
 """
 
 HUDI_OPTIONS = """
-    'table.type' = 'MERGE_ON_READ',
+    'table.type' = '{table_type}',
     'hoodie.datasource.write.recordkey.field' = 'event_id',
     'hoodie.embed.timeline.server' = 'false',
     'read.streaming.enabled' = 'true',
@@ -29,11 +31,18 @@ HUDI_OPTIONS = """
     'hoodie.keep.max.commits' = '30',
     'hive_sync.enable' = 'true',
     'hive_sync.db' = 'hudi',
-    'hive_sync.table' = 'ticker_hudi_mor',
+    'hive_sync.table' = 'ticker_hudi_{table_suffix}',
     'hive_sync.mode' = 'glue',
     'hive_sync.partition_fields' = 'ticker',
     'hive_sync.use_jdbc' = 'false'
 """
+
+
+def get_hudi_options(hudi_table_type: str) -> str:
+    return HUDI_OPTIONS.format(
+        table_type=HudiTableType[hudi_table_type.lower()].value,
+        table_suffix=hudi_table_type.lower(),
+    )
 
 
 def create_kinesis_table(
@@ -83,7 +92,11 @@ def create_json_table(table_name: str, bucket_name: str) -> str:
     )
 
 
-def create_hudi_table(table_name: str, bucket_name: str) -> str:
+def create_hudi_table(
+    hudi_table_type: str,
+    table_name: str,
+    bucket_name: str,
+) -> str:
     return """
         CREATE TABLE {table_name} (
             {table_schema}
@@ -91,14 +104,15 @@ def create_hudi_table(table_name: str, bucket_name: str) -> str:
         PARTITIONED BY (ticker)
         WITH (
             'connector' = 'hudi',
-            'path'='s3a://{bucket_name}/mor_table/',
+            'path'='s3a://{bucket_name}/table_{table_suffix}/',
             {hudi_options}
         )
     """.format(
         table_name=table_name,
         table_schema=SINK_SCHEMA,
         bucket_name=bucket_name,
-        hudi_options=HUDI_OPTIONS,
+        hudi_options=get_hudi_options(hudi_table_type),
+        table_suffix=hudi_table_type.lower(),
     )
 
 
@@ -118,6 +132,7 @@ def create_print_table(table_name: str) -> str:
 
 def create_sink_table(
     output_format: str,
+    hudi_table_type: str,
     output_table_name: str,
     output_bucket_name: str = None,
 ) -> str:
@@ -125,7 +140,7 @@ def create_sink_table(
         return create_json_table(output_table_name, output_bucket_name)
 
     if output_format == "hudi":
-        return create_hudi_table(output_table_name, output_bucket_name)
+        return create_hudi_table(hudi_table_type, output_table_name, output_bucket_name)
 
     if output_format == "print":
         return create_print_table(output_table_name)

@@ -1,6 +1,9 @@
 locals {
   prefix = "flink-app"
   suffix = "practica"
+  full_name = "${var.output_format == "hudi"
+    ? "${local.prefix}-${local.suffix}-${var.hudi_table_type}"
+    : "${local.prefix}-${local.suffix}-json"}"
 }
 
 data "aws_s3_bucket" "artifacts_bucket" {
@@ -13,11 +16,11 @@ data "aws_s3_object" "code_location" {
 }
 
 resource "aws_s3_bucket" "output_bucket" {
-  bucket = "${local.prefix}-${var.output_format}-${local.suffix}"
+  bucket = "${local.full_name}"
 }
 
 resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
-  name                   = "${local.prefix}-${var.output_format}"
+  name                   = "${local.full_name}"
   runtime_environment    = var.kda_config.runtime_environment
   service_execution_role = aws_iam_role.flink_app_role.arn
 
@@ -57,6 +60,7 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
         property_map = {
           "output.bucket.name" = aws_s3_bucket.output_bucket.bucket
           "output.format" = var.output_format
+          "hudi.table.type" = var.hudi_table_type
         }
       }
     }
@@ -91,10 +95,10 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
 }
 
 resource "aws_cloudwatch_log_group" "flink_hudi_log_group" {
-  name = "${local.prefix}-${var.output_format}"
+  name = "${local.full_name}"
 }
 
 resource "aws_cloudwatch_log_stream" "flink_hudi_log_stream" {
-  name           = "${local.prefix}-${var.output_format}"
+  name           = "${local.full_name}"
   log_group_name = aws_cloudwatch_log_group.flink_hudi_log_group.name
 }

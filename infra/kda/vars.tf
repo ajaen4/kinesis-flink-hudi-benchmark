@@ -18,6 +18,12 @@ variable "output_format" {
   type        = string
 }
 
+variable "hudi_table_type" {
+  description = "Hudi table type (MoR | CoW)"
+  type        = string
+  default     = null 
+}
+
 variable "source_stream_name" {
   description = "Kinesis Stream name for source data"
   type        = string
