@@ -1,4 +1,8 @@
 import os
 
-DATABASE_NAME = os.environ["DATABASE_NAME"]
-TABLE_NAME = os.environ["TABLE_NAME"]
+output_format=os.environ["OUTPUT_FORMAT"]
+
+db_table_names = {
+                  "json":[os.environ["JSON_DATABASE_NAME"], os.environ["JSON_TABLE_NAME"]],
+                  "hudi":[os.environ["HUDI_DATABASE_NAME"], os.environ["HUDI_TABLE_NAME"]]
+                  }
