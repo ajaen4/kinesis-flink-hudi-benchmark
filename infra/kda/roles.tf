@@ -1,5 +1,5 @@
 resource "aws_iam_role" "flink_app_role" {
-  name = "${local.full_name}"
+  name = local.full_name
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

@@ -92,7 +92,7 @@ Once deployed, you can make use of the provided Locust application to send event
 
 ```bash
 cd event_generation
-locust
+locust --tags send
 ```
 
 A Locust process will start and you can access its UI in http://0.0.0.0:8089/. You can modify number of users and rate, but the defaults will suffice for testing the application.

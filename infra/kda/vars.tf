@@ -21,7 +21,7 @@ variable "output_format" {
 variable "hudi_table_type" {
   description = "Hudi table type (MoR | CoW)"
   type        = string
-  default     = null 
+  default     = null
 }
 
 variable "source_stream_name" {
@@ -33,28 +33,28 @@ variable "kda_config" {
   description = "Kinesis Data Analytics configuration"
   type = object(
     {
-      runtime_environment = string
-      python              = string
-      jarfile             = string
-      parallelism         = number
-      parallelism_per_kpu = number
-      stream_inipos       = string
-      checkpoint_interval = number
+      runtime_environment           = string
+      python                        = string
+      jarfile                       = string
+      parallelism                   = number
+      parallelism_per_kpu           = number
+      stream_inipos                 = string
+      checkpoint_interval           = number
       min_pause_between_checkpoints = number
-      log_level           = string
-      metrics_level       = string
+      log_level                     = string
+      metrics_level                 = string
     }
   )
   default = {
-    runtime_environment = "FLINK-1_15"
-    python              = "flink_app.py"
-    jarfile             = "lib/combined.jar"
-    parallelism         = 1
-    parallelism_per_kpu = 1
-    stream_inipos       = "LATEST"
-    checkpoint_interval = 12000
-    min_pause_between_checkpoints = 1000 
-    log_level           = "INFO"
-    metrics_level       = "TASK"
+    runtime_environment           = "FLINK-1_15"
+    python                        = "flink_app.py"
+    jarfile                       = "lib/combined.jar"
+    parallelism                   = 1
+    parallelism_per_kpu           = 1
+    stream_inipos                 = "LATEST"
+    checkpoint_interval           = 12000
+    min_pause_between_checkpoints = 1000
+    log_level                     = "INFO"
+    metrics_level                 = "TASK"
   }
 }

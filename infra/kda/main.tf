@@ -1,9 +1,9 @@
 locals {
   prefix = "flink-app"
   suffix = "practica"
-  full_name = "${var.output_format == "hudi"
+  full_name = (var.output_format == "hudi"
     ? "${local.prefix}-${local.suffix}-${var.hudi_table_type}"
-    : "${local.prefix}-${local.suffix}-json"}"
+  : "${local.prefix}-${local.suffix}-json")
 }
 
 data "aws_s3_bucket" "artifacts_bucket" {
@@ -16,16 +16,16 @@ data "aws_s3_object" "code_location" {
 }
 
 resource "aws_s3_bucket" "output_bucket" {
-  bucket = "${local.full_name}"
+  bucket = local.full_name
 }
 
 resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
-  name                   = "${local.full_name}"
+  name                   = local.full_name
   runtime_environment    = var.kda_config.runtime_environment
   service_execution_role = aws_iam_role.flink_app_role.arn
 
   cloudwatch_logging_options {
-      log_stream_arn = aws_cloudwatch_log_stream.flink_hudi_log_stream.arn
+    log_stream_arn = aws_cloudwatch_log_stream.flink_hudi_log_stream.arn
   }
   application_configuration {
     application_code_configuration {
@@ -42,15 +42,15 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
       property_group {
         property_group_id = "kinesis.analytics.flink.run.options"
         property_map = {
-          "python" = var.kda_config.python
+          "python"  = var.kda_config.python
           "jarfile" = var.kda_config.jarfile
         }
       }
       property_group {
         property_group_id = "consumer.config.0"
         property_map = {
-          "aws.region" = var.aws_region
-          "input.stream.name" =  var.source_stream_name
+          "aws.region"          = var.aws_region
+          "input.stream.name"   = var.source_stream_name
           "scan.stream.initpos" = var.kda_config.stream_inipos
         }
       }
@@ -59,8 +59,8 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
         property_group_id = "sink.config.0"
         property_map = {
           "output.bucket.name" = aws_s3_bucket.output_bucket.bucket
-          "output.format" = var.output_format
-          "output.table.type" = var.hudi_table_type
+          "output.format"      = var.output_format
+          "output.table.type"  = var.hudi_table_type
         }
       }
     }
@@ -69,14 +69,14 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
       parallelism_configuration {
         auto_scaling_enabled = true
         configuration_type   = "CUSTOM"
-        parallelism = var.kda_config.parallelism
-        parallelism_per_kpu = var.kda_config.parallelism_per_kpu
+        parallelism          = var.kda_config.parallelism
+        parallelism_per_kpu  = var.kda_config.parallelism_per_kpu
       }
 
       checkpoint_configuration {
-        configuration_type   = "CUSTOM"
-        checkpointing_enabled = true
-        checkpoint_interval = var.kda_config.checkpoint_interval
+        configuration_type            = "CUSTOM"
+        checkpointing_enabled         = true
+        checkpoint_interval           = var.kda_config.checkpoint_interval
         min_pause_between_checkpoints = var.kda_config.min_pause_between_checkpoints
       }
 
@@ -96,10 +96,10 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
 }
 
 resource "aws_cloudwatch_log_group" "flink_hudi_log_group" {
-  name = "${local.full_name}"
+  name = local.full_name
 }
 
 resource "aws_cloudwatch_log_stream" "flink_hudi_log_stream" {
-  name           = "${local.full_name}"
+  name           = local.full_name
   log_group_name = aws_cloudwatch_log_group.flink_hudi_log_group.name
 }
