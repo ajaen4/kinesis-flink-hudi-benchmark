@@ -24,6 +24,7 @@ def main() -> None:
 
     output_bucket_name = props["sink.config.0"]["output.bucket.name"]
     output_format = props["sink.config.0"]["output.format"]
+    hudi_table_type = props["sink.config.0"].get("hudi.table.type")
 
     table_env.execute_sql(
         create_kinesis_table(
@@ -36,12 +37,22 @@ def main() -> None:
     table_env.execute_sql(
         create_sink_table(
             output_format,
+            hudi_table_type,
             output_table_name,
             output_bucket_name,
         )
     )
     table_result = table_env.execute_sql(
-        "INSERT INTO {0} SELECT * FROM {1}".format(output_table_name, input_table_name)
+        """INSERT INTO {0}
+            SELECT 
+                event_id,
+                ticker,
+                price,
+                event_time,
+                PROCTIME() as processing_time
+            FROM {1}""".format(
+            output_table_name, input_table_name
+        )
     )
 
     if is_local:

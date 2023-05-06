@@ -11,7 +11,7 @@
     {
       "PropertyGroupId": "consumer.config.0",
       "PropertyMap": {
-        "input.stream.name": "kinesis-hudi-inbound",
+        "input.stream.name": "inbound_kinesis",
         "scan.stream.initpos": "LATEST",
         "aws.region": "eu-west-1"
       }
@@ -20,7 +20,8 @@
       "PropertyGroupId": "sink.config.0",
       "PropertyMap": {
         "output.bucket.name": "flink-hudi-practica",
-        "output.format": "hudi"
+        "output.format": "hudi",
+        "hudi.table.type": "mor"
       }
     }
 ]

@@ -1,19 +1,14 @@
 variable "aws_region" {
-	type      = string
-	default   = "eu-west-1"
+  type    = string
+  default = "eu-west-1"
 }
 
-variable "bucket_name" {
-  description = "S3 Bucket name"
+variable "artifacts_bucket_name" {
+  description = "S3 bucket name for artifacts"
   type        = string
 }
 
-variable "inbound_kinesis" {
+variable "source_stream_name" {
   description = "Kinesis Stream name for inbound data"
-  type        = string
-}
-
-variable "output_format" {
-  description = "Output format stored in S3 (hudi | json | print)"
   type        = string
 }

@@ -1,4 +1,3 @@
 aws_region = "eu-west-1"
-bucket_name = "flink-hudi-practica"
-inbound_kinesis = "inbound_kinesis"
-output_format = "hudi"
+artifacts_bucket_name = "flink-hudi-practica"
+source_stream_name = "inbound_kinesis"
