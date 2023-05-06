@@ -50,6 +50,7 @@ def create_kinesis_table(
     stream_name: str,
     region: str,
     stream_initpos: str,
+    table_type: str,
 ) -> str:
     return """
         CREATE TABLE {table_name} (
@@ -63,7 +64,9 @@ def create_kinesis_table(
             'scan.stream.initpos' = '{stream_initpos}',
             'format' = 'json',
             'json.timestamp-format.standard' = 'ISO-8601',
-            'scan.shard.adaptivereads' = 'true'
+            'scan.shard.adaptivereads' = 'true',
+            'scan.stream.recordpublisher' = 'EFO',
+            'scan.stream.efo.consumername' = '{table_type}'
         )
     """.format(
         table_name=table_name,
@@ -71,6 +74,7 @@ def create_kinesis_table(
         stream_name=stream_name,
         region=region,
         stream_initpos=stream_initpos,
+        table_type=table_type,
     )
 
 
@@ -82,8 +86,10 @@ def create_json_table(table_name: str, bucket_name: str) -> str:
         PARTITIONED BY (ticker)
         WITH (
             'connector'='filesystem',
-            'path'='s3a://{bucket_name}/flink_output_json/',
-            'format'='json'
+            'path'='s3a://{bucket_name}/table_json/',
+            'format'='json',
+            'sink.rolling-policy.rollover-interval' = '1s',
+            'sink.rolling-policy.check-interval' = '1s'
         )
     """.format(
         table_name=table_name,

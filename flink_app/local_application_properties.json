@@ -21,7 +21,7 @@
       "PropertyMap": {
         "output.bucket.name": "flink-hudi-practica",
         "output.format": "hudi",
-        "hudi.table.type": "mor"
+        "output.table.type": "mor"
       }
     }
 ]

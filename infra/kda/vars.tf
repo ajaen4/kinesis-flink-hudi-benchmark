@@ -40,6 +40,7 @@ variable "kda_config" {
       parallelism_per_kpu = number
       stream_inipos       = string
       checkpoint_interval = number
+      min_pause_between_checkpoints = number
       log_level           = string
       metrics_level       = string
     }
@@ -51,7 +52,8 @@ variable "kda_config" {
     parallelism         = 1
     parallelism_per_kpu = 1
     stream_inipos       = "LATEST"
-    checkpoint_interval = 5000
+    checkpoint_interval = 12000
+    min_pause_between_checkpoints = 1000 
     log_level           = "INFO"
     metrics_level       = "TASK"
   }

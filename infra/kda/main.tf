@@ -60,7 +60,7 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
         property_map = {
           "output.bucket.name" = aws_s3_bucket.output_bucket.bucket
           "output.format" = var.output_format
-          "hudi.table.type" = var.hudi_table_type
+          "output.table.type" = var.hudi_table_type
         }
       }
     }
@@ -77,6 +77,7 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
         configuration_type   = "CUSTOM"
         checkpointing_enabled = true
         checkpoint_interval = var.kda_config.checkpoint_interval
+        min_pause_between_checkpoints = var.kda_config.min_pause_between_checkpoints
       }
 
       monitoring_configuration {

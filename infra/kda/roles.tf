@@ -38,13 +38,8 @@ resource "aws_iam_role" "flink_app_role" {
           Action = ["kinesis:*"]
           Effect = "Allow"
           Resource = [
-            "arn:aws:kinesis:*:*:stream/${var.source_stream_name}"
+            "*"
           ]
-        },
-        {
-          Action   = ["kinesis:ListShards"]
-          Effect   = "Allow"
-          Resource = "arn:aws:kinesis:*:*:stream/*"
         },
         {
           Action   = ["glue:*"]
