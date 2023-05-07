@@ -6,7 +6,7 @@ uber-jar:
 	cd flink_app && mvn clean package
 
 send-records:
-	cd event_generation && locust
+	cd event_generation && locust --tags send
 
 run-app:
 	python local/run_flink_app.py
