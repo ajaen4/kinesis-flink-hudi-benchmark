@@ -1,8 +1,9 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_kinesis_stream" "inbound_kinesis" {
-  name             = var.source_stream_name
-  retention_period = 24
+  name                      = var.source_stream_name
+  retention_period          = 24
+  enforce_consumer_deletion = true
 
   shard_level_metrics = [
     "IncomingBytes",

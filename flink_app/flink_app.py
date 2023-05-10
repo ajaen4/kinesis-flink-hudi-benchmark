@@ -24,7 +24,7 @@ def main() -> None:
 
     output_bucket_name = props["sink.config.0"]["output.bucket.name"]
     output_format = props["sink.config.0"]["output.format"]
-    hudi_table_type = props["sink.config.0"].get("hudi.table.type")
+    output_table_type = props["sink.config.0"].get("output.table.type", output_format)
 
     table_env.execute_sql(
         create_kinesis_table(
@@ -32,12 +32,13 @@ def main() -> None:
             input_stream,
             input_region,
             stream_initpos,
+            output_table_type,
         )
     )
     table_env.execute_sql(
         create_sink_table(
             output_format,
-            hudi_table_type,
+            output_table_type,
             output_table_name,
             output_bucket_name,
         )
