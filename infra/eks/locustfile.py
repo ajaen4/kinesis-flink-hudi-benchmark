@@ -3,15 +3,21 @@ import random
 import json
 import uuid
 
-from locust import User, task, between
+from locust import User, task, between, tag
 import boto3
 
-from enum import Enum
+import config as cfg
+from tickers import Tickers
 
-class Tickers(Enum):
-    APPLE = "AAPL"
-    AMAZON = "AMZN"
-    MICROSOFT = "MSFT"
+
+def read_previous_event(file_path):
+    with open(file_path, "r") as f:
+        line = next(f)
+        for num, aline in enumerate(f, 2):
+            if random.randrange(num):
+                continue
+            line = aline
+    return json.loads(line)
 
 
 class StockUser(User):
@@ -19,11 +25,27 @@ class StockUser(User):
 
     def on_start(self):
         self.kinesis_client = boto3.client("kinesis")
-        self.stream_name = "kinesis-hudi-inbound"
+        self.stream_name = cfg.STREAM_NAME
 
+    @tag("send")
     @task
     def send_stock_values(self):
-        for ticker in Tickers:
+        ticker = random.choice(list(Tickers))
+        event_id = str(uuid.uuid4())
+        data = StockUser.get_data(ticker.value, event_id)
+        self.kinesis_client.put_record(
+            StreamName=self.stream_name,
+            Data=data,
+            PartitionKey=event_id,
+        )
+
+        ticker = random.choice(list(Tickers))
+
+    @tag("send-save")
+    @task
+    def send_and_save_stock_values(self):
+        with open("events/events.json", "a") as events:
+            ticker = random.choice(list(Tickers))
             event_id = str(uuid.uuid4())
             data = StockUser.get_data(ticker.value, event_id)
             self.kinesis_client.put_record(
@@ -31,58 +53,33 @@ class StockUser(User):
                 Data=data,
                 PartitionKey=event_id,
             )
+            events.write(data)
+            events.write("\n")
+
+    @tag("send-inserts")
+    @task
+    def send_stock_inserts(self):
+        with open("events/inserts.json", "a") as inserts:
+            prev_event = read_previous_event("events/events.json")
+            event_id = prev_event["event_id"]
+            ticker = prev_event["ticker"]
+            data = StockUser.get_data(ticker, event_id)
+
+            self.kinesis_client.put_record(
+                StreamName=self.stream_name,
+                Data=data,
+                PartitionKey=event_id,
+            )
+            inserts.write(data)
+            inserts.write("\n")
 
     @staticmethod
     def get_data(ticker_value, event_id):
         return json.dumps(
             {
                 "event_id": event_id,
-                "event_time": datetime.now().isoformat(),
+                "event_time": datetime.utcnow().isoformat(),
                 "ticker": ticker_value,
                 "price": round(random.random() * 100, 2),
             }
         )
-    
-def get_shard_iterator(kinesis_client, stream_name):
-    kinesis_stream = kinesis_client.describe_stream(StreamName=stream_name)
-    shards = kinesis_stream["StreamDescription"]["Shards"]
-
-    # Take just first shard for sampling
-    shard_id = shards[0]["ShardId"]
-
-    iter_response = kinesis_client.get_shard_iterator(
-        StreamName=stream_name,
-        ShardId=shard_id,
-        ShardIteratorType="TRIM_HORIZON",
-    )
-    return iter_response["ShardIterator"]
-
-
-def iterate_stream(stream_name):
-    kinesis_client = boto3.client("kinesis")
-
-    shard_iterator = get_shard_iterator(kinesis_client, stream_name)
-
-    while True:
-        record_response = kinesis_client.get_records(ShardIterator=shard_iterator)
-
-        for record in record_response["Records"]:
-            print(json.loads(record["Data"]))
-
-        shard_iterator = record_response["NextShardIterator"]
-
-
-if __name__ == "__main__":
-    iterate_stream("kinesis-hudi-inbound")
-
-
-# from locust import HttpUser, task, between
-
-# default_headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'}
-
-# class WebsiteUser(HttpUser):
-#     wait_time = between(1, 5)
-
-#     @task(1)
-#     def get_index(self):
-#         self.client.get("/", headers=default_headers)

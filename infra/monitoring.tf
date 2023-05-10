@@ -7,7 +7,6 @@ module "monitoring_hudi" {
   image_tag       = "0.0.1"
   database_name   = "hudi"
   table_name      = "hudi_benchmark_ro"
-  output_format   = "hudi"
 }
 
 module "monitoring_json" {
@@ -19,5 +18,4 @@ module "monitoring_json" {
   image_tag       = "0.0.1"
   database_name   = "hudi"
   table_name      = "flink_output_json"
-  output_format   = "json"
 }
