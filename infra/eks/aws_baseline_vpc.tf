@@ -3,7 +3,7 @@ module "aws_baseline_vpc" {
   version = "~> 3.0"
 
   create_vpc                       = var.aws_baseline_vpc.create_vpc
-  name                             = format("%s-%s", var.aws_baseline_vpc.vpc_name, var.tags.environment)
+  name                             = format("%s-%s", var.aws_baseline_vpc.vpc_name, var.eks_tags.environment)
   cidr                             = var.aws_baseline_vpc.cidr
   azs                              = data.aws_availability_zones.available.names
   private_subnets                  = var.aws_baseline_vpc.private_subnets
@@ -26,7 +26,7 @@ module "aws_baseline_vpc" {
     "kubernetes.io/role/internal-elb"     = "1"
   }
 
-  tags = var.tags
+  tags = var.eks_tags
 }
 
 data "aws_caller_identity" "current" {}
@@ -47,31 +47,31 @@ module "endpoints" {
       service         = "s3"
       service_type    = "Gateway"
       route_table_ids = flatten([module.aws_baseline_vpc.private_route_table_ids])
-      tags            = { Name = "${var.tags.project}-${var.tags.environment}-s3-vpc-endpoint" }
+      tags            = { Name = "${var.eks_tags.project}-${var.eks_tags.environment}-s3-vpc-endpoint" }
     },
     ecr_dkr = {
       service             = "ecr.dkr"
       private_dns_enabled = true
       subnet_ids          = module.aws_baseline_vpc.private_subnets
-      tags                = { Name = "${var.tags.project}-${var.tags.environment}-ecr-dkr-vpc-endpoint" }
+      tags                = { Name = "${var.eks_tags.project}-${var.eks_tags.environment}-ecr-dkr-vpc-endpoint" }
     }
     ecr_api = {
       service             = "ecr.api"
       private_dns_enabled = true
       subnet_ids          = module.aws_baseline_vpc.private_subnets
-      tags                = { Name = "${var.tags.project}-${var.tags.environment}-ecr-api-vpc-endpoint" }
+      tags                = { Name = "${var.eks_tags.project}-${var.eks_tags.environment}-ecr-api-vpc-endpoint" }
     }
     kinesis = {
       service             = "kinesis-streams"
       private_dns_enabled = true
       subnet_ids          = module.aws_baseline_vpc.private_subnets
-      tags                = { Name = "${var.tags.project}-${var.tags.environment}-kinesis-vpc-endpoint" }
+      tags                = { Name = "${var.eks_tags.project}-${var.eks_tags.environment}-kinesis-vpc-endpoint" }
     }
   }
 
   depends_on = [aws_security_group.non_default]
 
-  tags = var.tags
+  tags = var.eks_tags
 }
 
 resource "aws_security_group" "non_default" {

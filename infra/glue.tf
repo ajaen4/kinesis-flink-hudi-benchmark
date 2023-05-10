@@ -1,5 +1,5 @@
 resource "aws_athena_workgroup" "hudi_json_benchmark" {
-  name = var.glue_database_name 
+  name = var.glue_database_name
 
   configuration {
     engine_version {
@@ -12,8 +12,8 @@ resource "aws_athena_workgroup" "hudi_json_benchmark" {
 }
 
 resource "aws_glue_catalog_database" "hudi_json" {
-  name = var.glue_database_name 
-} 
+  name = var.glue_database_name
+}
 
 resource "aws_glue_crawler" "json_table" {
   database_name = aws_glue_catalog_database.hudi_json.name
@@ -26,7 +26,7 @@ resource "aws_glue_crawler" "json_table" {
 }
 
 resource "aws_iam_role" "json_crawler" {
-  name = "json_table_crawler" 
+  name = "json_table_crawler"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -41,12 +41,12 @@ resource "aws_iam_role" "json_crawler" {
       },
     ]
   })
-  
+
   managed_policy_arns = [
     data.aws_iam_policy.glue_service.arn,
     data.aws_iam_policy.s3_access.arn,
   ]
-  
+
 }
 
 data "aws_iam_policy" "glue_service" {

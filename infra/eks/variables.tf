@@ -1,4 +1,4 @@
-variable "tags" {
+variable "eks_tags" {
   type = map(string)
 }
 

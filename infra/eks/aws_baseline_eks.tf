@@ -27,7 +27,7 @@ locals {
     }
   ]
 
-  worker_groups_core_scaling_tags = [
+  worker_groups_scaling_tags = [
     {
       "key"                 = "k8s.io/cluster-autoscaler/enabled"
       "propagate_at_launch" = "true"
@@ -75,86 +75,86 @@ module "eks" {
 
   worker_groups_launch_template = [
     {
-      name                          = "${var.aws_baseline_eks.worker_groups_core_name}-${local.private_subnet_az1_name}"
+      name                          = "${var.aws_baseline_eks.worker_groups_core.name}-${local.private_subnet_az1_name}"
       subnets                       = local.private_subnet_az1_id
-      instance_type                 = var.aws_baseline_eks.worker_groups_core_instance_type
-      additional_userdata           = var.aws_baseline_eks.worker_groups_core_additional_userdata
-      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_asg_desired_capacity
-      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_asg_max_size
-      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_asg_min_size
-      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_kubelet_extra_args
-      suspended_processes           = var.aws_baseline_eks.worker_groups_core_suspended_processes
+      instance_type                 = var.aws_baseline_eks.worker_groups_core.instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_core.additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core.asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_core.asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_core.asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core.kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_core.suspended_processes
       additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
       tags                          = local.worker_groups_core_tags
     },
     {
-      name                          = "${var.aws_baseline_eks.worker_groups_core_name}-${local.private_subnet_az2_name}"
+      name                          = "${var.aws_baseline_eks.worker_groups_core.name}-${local.private_subnet_az2_name}"
       subnets                       = local.private_subnet_az2_id
-      instance_type                 = var.aws_baseline_eks.worker_groups_core_instance_type
-      additional_userdata           = var.aws_baseline_eks.worker_groups_core_additional_userdata
-      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_asg_desired_capacity
-      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_asg_max_size
-      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_asg_min_size
-      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_kubelet_extra_args
-      suspended_processes           = var.aws_baseline_eks.worker_groups_core_suspended_processes
+      instance_type                 = var.aws_baseline_eks.worker_groups_core.instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_core.additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core.asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_core.asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_core.asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core.kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_core.suspended_processes
       additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
       tags                          = local.worker_groups_core_tags
     },
     {
-      name                          = "${var.aws_baseline_eks.worker_groups_core_name}-${local.private_subnet_az3_name}"
+      name                          = "${var.aws_baseline_eks.worker_groups_core.name}-${local.private_subnet_az3_name}"
       subnets                       = local.private_subnet_az3_id
-      instance_type                 = var.aws_baseline_eks.worker_groups_core_instance_type
-      additional_userdata           = var.aws_baseline_eks.worker_groups_core_additional_userdata
-      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_asg_desired_capacity
-      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_asg_max_size
-      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_asg_min_size
-      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_kubelet_extra_args
-      suspended_processes           = var.aws_baseline_eks.worker_groups_core_suspended_processes
+      instance_type                 = var.aws_baseline_eks.worker_groups_core.instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_core.additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core.asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_core.asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_core.asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core.kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_core.suspended_processes
       additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
       tags                          = local.worker_groups_core_tags
     },
     {
-      name                          = "${var.aws_baseline_eks.worker_groups_core_scaling_name}-${local.private_subnet_az1_name}"
+      name                          = "${var.aws_baseline_eks.worker_groups_scaling.name}-${local.private_subnet_az1_name}"
       subnets                       = local.private_subnet_az1_id
-      instance_type                 = var.aws_baseline_eks.worker_groups_core_scaling_instance_type
-      additional_userdata           = var.aws_baseline_eks.worker_groups_core_scaling_additional_userdata
-      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_scaling_asg_desired_capacity
-      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_max_size
-      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_min_size
-      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_scaling_kubelet_extra_args
-      suspended_processes           = var.aws_baseline_eks.worker_groups_core_scaling_suspended_processes
+      instance_type                 = var.aws_baseline_eks.worker_groups_scaling.instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_scaling.additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_scaling.asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_scaling.asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_scaling.asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_scaling.kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_scaling.suspended_processes
       additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
-      tags                          = local.worker_groups_core_scaling_tags
+      tags                          = local.worker_groups_scaling_tags
     },
     {
-      name                          = "${var.aws_baseline_eks.worker_groups_core_scaling_name}-${local.private_subnet_az2_name}"
+      name                          = "${var.aws_baseline_eks.worker_groups_scaling.name}-${local.private_subnet_az2_name}"
       subnets                       = local.private_subnet_az2_id
-      instance_type                 = var.aws_baseline_eks.worker_groups_core_scaling_instance_type
-      additional_userdata           = var.aws_baseline_eks.worker_groups_core_scaling_additional_userdata
-      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_scaling_asg_desired_capacity
-      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_max_size
-      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_min_size
-      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_scaling_kubelet_extra_args
-      suspended_processes           = var.aws_baseline_eks.worker_groups_core_scaling_suspended_processes
+      instance_type                 = var.aws_baseline_eks.worker_groups_scaling.instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_scaling.additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_scaling.asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_scaling.asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_scaling.asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_scaling.kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_scaling.suspended_processes
       additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
-      tags                          = local.worker_groups_core_scaling_tags
+      tags                          = local.worker_groups_scaling_tags
     },
     {
-      name                          = "${var.aws_baseline_eks.worker_groups_core_scaling_name}-${local.private_subnet_az3_name}"
+      name                          = "${var.aws_baseline_eks.worker_groups_scaling.name}-${local.private_subnet_az3_name}"
       subnets                       = local.private_subnet_az3_id
-      instance_type                 = var.aws_baseline_eks.worker_groups_core_scaling_instance_type
-      additional_userdata           = var.aws_baseline_eks.worker_groups_core_scaling_additional_userdata
-      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_core_scaling_asg_desired_capacity
-      asg_max_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_max_size
-      asg_min_size                  = var.aws_baseline_eks.worker_groups_core_scaling_asg_min_size
-      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_core_scaling_kubelet_extra_args
-      suspended_processes           = var.aws_baseline_eks.worker_groups_core_scaling_suspended_processes
+      instance_type                 = var.aws_baseline_eks.worker_groups_scaling.instance_type
+      additional_userdata           = var.aws_baseline_eks.worker_groups_scaling.additional_userdata
+      asg_desired_capacity          = var.aws_baseline_eks.worker_groups_scaling.asg_desired_capacity
+      asg_max_size                  = var.aws_baseline_eks.worker_groups_scaling.asg_max_size
+      asg_min_size                  = var.aws_baseline_eks.worker_groups_scaling.asg_min_size
+      kubelet_extra_args            = var.aws_baseline_eks.worker_groups_scaling.kubelet_extra_args
+      suspended_processes           = var.aws_baseline_eks.worker_groups_scaling.suspended_processes
       additional_security_group_ids = [module.sg_eks_worker_group_on_demand.this_security_group_id]
-      tags                          = local.worker_groups_core_scaling_tags
+      tags                          = local.worker_groups_scaling_tags
     },
   ]
 
-  tags = var.tags
+  tags = var.eks_tags
 
   depends_on = [
     module.sg_eks_worker_group_on_demand,
@@ -203,7 +203,7 @@ module "sg_eks_worker_group_on_demand" {
     }
   ]
   egress_rules = ["all-all"]
-  tags         = var.tags
+  tags         = var.eks_tags
 }
 
 module "sg_eks_worker_group_spot" {
@@ -224,7 +224,7 @@ module "sg_eks_worker_group_spot" {
     }
   ]
   egress_rules = ["all-all"]
-  tags         = var.tags
+  tags         = var.eks_tags
 }
 
 module "sg_eks_worker_group_locust" {
@@ -245,7 +245,7 @@ module "sg_eks_worker_group_locust" {
     }
   ]
   egress_rules = ["all-all"]
-  tags         = var.tags
+  tags         = var.eks_tags
 }
 
 module "sg_eks_worker_group_all" {
@@ -266,5 +266,5 @@ module "sg_eks_worker_group_all" {
     }
   ]
   egress_rules = ["all-all"]
-  tags         = var.tags
+  tags         = var.eks_tags
 }

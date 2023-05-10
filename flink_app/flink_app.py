@@ -26,7 +26,7 @@ def main() -> None:
     output_bucket_name = props["sink.config.0"]["output.bucket.name"]
     output_format = props["sink.config.0"]["output.format"]
     output_table_type = props["sink.config.0"].get("output.table.type", output_format)
-    output_glue_database = props["sink.config.0"]["output.glue.database"] 
+    output_glue_database = props["sink.config.0"]["output.glue.database"]
 
     table_env.execute_sql(
         create_kinesis_table(
@@ -48,7 +48,7 @@ def main() -> None:
     )
     table_result = table_env.execute_sql(
         """INSERT INTO {0}
-            SELECT 
+            SELECT
                 event_id,
                 ticker,
                 price,
@@ -61,6 +61,7 @@ def main() -> None:
 
     if is_local:
         table_result.wait()
+
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,8 @@
 loadtest:
   # loadtest.name -- a name used for resources and settings in this load test
-  name: example
+  name: hudi-json-loadtest
   # loadtest.locust_locustfile -- the name of the locustfile
-  locust_locustfile: main.py
+  locust_locustfile: locustfile.py
   # loadtest.locust_locustfile_path -- the path of the locustfile (without trailing backslash)
   locust_locustfile_path: "/mnt/locust"
   # loadtest.locust_locustfile_configmap -- name of a configmap containing your locustfile (default uses the example locustfile)
@@ -12,7 +12,7 @@ loadtest:
   # loadtest.locust_host -- the host you will load test
   locust_host: https://www.google.com
   # loadtest.pip_packages -- a list of extra python pip packages to install
-  pip_packages: [boto3]
+  pip_packages: [boto3,python-dotenv]
   # loadtest.environment -- environment variables used in the load test for both master and workers
   environment: {}
     # VAR: VALUE
@@ -30,7 +30,7 @@ loadtest:
   # loadtest.headless -- whether to run locust with headless settings
   headless: false
   # loadtest.tags -- whether to run locust with `--tags [TAG [TAG ...]]` options, so only tasks with any matching tags will be executed
-  tags: ""
+  tags: "send"
   # loadtest.excludeTags -- whether to run locust with `--exclude-tags [TAG [TAG ...]]` options, so only tasks with no matching tags will be executed
   excludeTags: ""
   # loadtest.locustCmd -- The command to run Locust
@@ -42,7 +42,7 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP
+  type: LoadBalancer
   annotations: {}
   extraLabels: {}
 
@@ -102,8 +102,8 @@ worker:
   pdb:
     enabled: false
   hpa:
-    enabled: false
-    minReplicas: 1
+    enabled: true
+    minReplicas: 5
     maxReplicas: 100
     targetCPUUtilizationPercentage: 40
   # worker.resources -- resources for the locust worker
@@ -168,10 +168,9 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-# extraConfigMaps -- Any extra configmaps to mount for the master and worker. Can be used for extra python packages
 extraConfigMaps: {}
 nodeSelector: {}
 tolerations: []
 affinity: {}
-# extraLabels -- Any extra labels to apply to all resources
+
 extraLabels: {}

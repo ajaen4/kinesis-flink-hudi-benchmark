@@ -24,7 +24,7 @@ class StockUser(User):
     wait_time = between(1, 1)
 
     def on_start(self):
-        self.kinesis_client = boto3.client("kinesis")
+        self.kinesis_client = boto3.client("kinesis", region_name=cfg.REGION_NAME)
         self.stream_name = cfg.STREAM_NAME
 
     @tag("send")

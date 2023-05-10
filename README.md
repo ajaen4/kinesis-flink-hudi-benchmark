@@ -38,7 +38,14 @@ You need this so every script or deployment is done with the correct credentials
 This code will deploy the following infraestructure inside AWS:
 - 2 Kinesis Flink Applications
 - 1 Kinesis Data Streams
-- 1 S3 bucket
+- 3 S3 bucket
+    - Deployment bucket
+    - JSON data bucket
+    - Hudi COW data bucket
+    - Hudi MOR data bucket
+- 1 EKS Cluster
+- 1 Locust app deployed in the EKS Cluster
+- 2 Monitoring Lambdas (1 per output type)
 
 ## Installation
 
@@ -76,7 +83,7 @@ Please copy it, we will be using it in the next chapter.
 
 ## Infrastructure deployment
 
-To be able to deploy the infrastructure it's necessary to fill in the variables file ("infra/vars.tfv") and the backend config for the remote state ("terraform.tf")
+To be able to deploy the infrastructure it's necessary to fill in the variables file ("infra/vars.tfv") and the backend config for the remote state ("terraform.tf").
 
 To deploy, the following commands must be run:
 
@@ -88,7 +95,9 @@ We will use the value copied in the previous chapter, the state bucket name, to 
 
 ## Sending events with Locust
 
-Once deployed, you can make use of the provided Locust application to send events to the Kinesis Stream. Just make sure that your AWS profile and Kinesis Stream name are properly configured in ```event_generation/.env``` and run
+### Locally
+
+Once deployed, you can make use of the provided Locust application to send events to the Kinesis Stream. Just make sure that the environment variables are properly configured in ```event_generation/.env``` (add AWS_PROFILE if you want to use a different one from the default) and run:
 
 ```bash
 cd event_generation
@@ -96,6 +105,11 @@ locust --tags send
 ```
 
 A Locust process will start and you can access its UI in http://0.0.0.0:8089/. You can modify number of users and rate, but the defaults will suffice for testing the application.
+
+### From the Locust EKS app
+
+After deploying all the infrastructure you will see an output called load_balancer_dns. Its value is an URL, copy and paste it in your web browser to see the Locust interface. Choose the configuration for your loadtest and click "Start swarming". You will start to receive events inmediatly to the designated kinesis stream!.
+
 
 ## Application details
 

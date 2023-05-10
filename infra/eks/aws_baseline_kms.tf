@@ -21,7 +21,7 @@ data "aws_iam_policy_document" "aws_baseline_kms_document" {
 
     principals {
       type        = "Service"
-      identifiers = ["logs.${var.tags.region}.amazonaws.com"]
+      identifiers = ["logs.${var.eks_tags.region}.amazonaws.com"]
     }
 
     actions = [
@@ -82,5 +82,5 @@ module "aws_baseline_kms" {
   key_usage               = var.aws_baseline_kms.key_usage
   name                    = var.aws_baseline_kms.name
   policy                  = data.aws_iam_policy_document.aws_baseline_kms_document.json
-  tags                    = var.tags
+  tags                    = var.eks_tags
 }

@@ -1,5 +1,5 @@
 provider "aws" {
-  region = var.tags.region
+  region = var.eks_tags.region
 }
 
 terraform {
@@ -11,11 +11,6 @@ terraform {
     }
     kubernetes = "~> 2.16.1"
   }
-  # backend "s3" {
-  #   key     = ""
-  #   region  = "eu-west-1"
-  #   encrypt = true
-  # }
 }
 
 provider "kubernetes" {
