@@ -1,10 +1,23 @@
-module "monitoring" {
+module "monitoring_hudi" {
 
   source = "./monitoring"
 
   aws_region_name = var.aws_region
-  aws_account_id = data.aws_caller_identity.current.account_id
-  image_tag = "0.0.1"
-  database_name = "hudi"
-  table_name = "ticker_hudi_mor_ro"
+  aws_account_id  = data.aws_caller_identity.current.account_id
+  image_tag       = "0.0.1"
+  database_name   = "hudi"
+  table_name      = "hudi_benchmark_ro"
+  output_format   = "hudi"
+}
+
+module "monitoring_json" {
+
+  source = "./monitoring"
+
+  aws_region_name = var.aws_region
+  aws_account_id  = data.aws_caller_identity.current.account_id
+  image_tag       = "0.0.1"
+  database_name   = "hudi"
+  table_name      = "flink_output_json"
+  output_format   = "json"
 }
