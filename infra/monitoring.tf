@@ -8,6 +8,7 @@ module "monitoring_hudi" {
   database_name   = "hudi"
   table_name      = "hudi_benchmark_ro"
   output_format   = "hudi"
+  module_name     = "hudi"
 }
 
 module "monitoring_json" {
@@ -20,4 +21,5 @@ module "monitoring_json" {
   database_name   = "hudi"
   table_name      = "flink_output_json"
   output_format   = "json"
+  module_name     = "json"
 }

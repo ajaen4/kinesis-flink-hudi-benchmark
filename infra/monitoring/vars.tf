@@ -22,3 +22,13 @@ variable "table_name" {
   description = "Table to query to obtain record count from lambda"
   type        = string
 }
+
+variable "output_format" {
+  description = "Output format of the S3 objects(hudi/json)"
+  type        = string
+}
+
+variable "module_name" {
+  description = "Name of the module (hudi or json) thas will be declare the iam policy suffix"
+  type        = string
+}

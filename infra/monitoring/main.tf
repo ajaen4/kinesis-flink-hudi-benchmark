@@ -58,21 +58,25 @@ data "aws_iam_policy_document" "push_metric_policy" {
 }
 
 resource "aws_iam_policy" "push_metric_policy" {
-  name        = "push-metric-policy"
+  name        = var.module_name == "hudi" ? "push-metric-policy-hudi" : "push-metric-policy-json"
   path        = "/"
   description = "Allow push metrics to CloudWatch"
 
   policy = data.aws_iam_policy_document.push_metric_policy.json
 }
 
+
+
 resource "aws_iam_role" "metric_pusher_lambda_role" {
-  name               = "metric-pusher-lambda-role"
+  #name               = "metric-pusher-lambda-role"
+  name               = var.module_name == "hudi" ? "metric-pusher-lambda-role-hudi" : "metric-pusher-lambda-role-json"
   assume_role_policy = data.aws_iam_policy_document.metric_pusher_assume_policy.json
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
 }
 
 resource "aws_iam_role_policy_attachment" "metric_pusher_lambda_role_attachment" {
   role       = aws_iam_role.metric_pusher_lambda_role.name
+  #role        = "push-metric-policy"
   policy_arn = aws_iam_policy.push_metric_policy.arn
 }
 
@@ -84,6 +88,7 @@ resource "aws_lambda_function" "metric_pusher_lambda" {
 
   function_name = "metric-pusher-lambda"
   role          = aws_iam_role.metric_pusher_lambda_role.arn
+  #role          = "arn:aws:iam::482861842012:policy/push-metric-policy"
   timeout = 60
 
   package_type = "Image"
@@ -93,12 +98,14 @@ resource "aws_lambda_function" "metric_pusher_lambda" {
     variables = {
       DATABASE_NAME = var.database_name
       TABLE_NAME = var.table_name
+      OUTPUT_FORMAT = var.output_format
     }
   }
 }
 
 resource "aws_cloudwatch_log_group" "example" {
-  name              = "/aws/lambda/metric-pusher-lambda"
+  #name              = "/aws/lambda/metric-pusher-lambda"
+  name              = var.module_name == "hudi" ? "/aws/lambda/metric-pusher-lambda-hudi" : "/aws/lambda/metric-pusher-lambda-json"
   retention_in_days = 14
 }
 
@@ -122,7 +129,8 @@ resource "aws_cloudwatch_event_target" "invoke_lambda" {
 }
 
 resource "aws_ecr_repository" "metric_pusher_ecr_repo" {
-  name                 = "metric-pusher-ecr-repo"
+  #name                 = "metric-pusher-ecr-repo"
+  name              = var.module_name == "hudi" ? "metric-pusher-ecr-repo-hudi" : "metric-pusher-ecr-repo-json"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
