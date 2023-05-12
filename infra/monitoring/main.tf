@@ -86,7 +86,7 @@ resource "aws_lambda_function" "metric_pusher_lambda" {
     null_resource.build_metric_pusher_image
   ]
 
-  function_name = "metric-pusher-lambda"
+  function_name = var.module_name == "hudi" ? "metric_pusher_lambda-lambda-hudi" : "metric_pusher_lambda-lambda-json"
   role          = aws_iam_role.metric_pusher_lambda_role.arn
   #role          = "arn:aws:iam::482861842012:policy/push-metric-policy"
   timeout = 60
@@ -132,7 +132,7 @@ resource "aws_ecr_repository" "metric_pusher_ecr_repo" {
   #name                 = "metric-pusher-ecr-repo"
   name              = var.module_name == "hudi" ? "metric-pusher-ecr-repo-hudi" : "metric-pusher-ecr-repo-json"
   image_tag_mutability = "MUTABLE"
-
+  force_delete    = true
   image_scanning_configuration {
     scan_on_push = true
   }
