@@ -9,7 +9,6 @@ class CloudwatchService:
 
     def push_metric(self, metric):
 
-        timestamp = datetime.now()
         params = {
             "MetricData": [
                 {
@@ -18,7 +17,7 @@ class CloudwatchService:
                         {"Name": "table_name", "Value": metric["table_name"]},
                     ],
                     "StorageResolution": 1,
-                    "Timestamp": timestamp,
+                    "Timestamp": metric["timestamp"],
                     "Unit": "Count",
                     "Value": metric["value"],
                 }
