@@ -6,21 +6,13 @@ from datetime import datetime
 
 def count_query_push_metric(metric_name, database_name, table_name):
 
-    if output_format == "hudi":
-        count_query_query_imported = COUNT_QUERY.format(
-            database_name=database_name,
-            table_name=table_name,
-        ) 
-    else:
-        count_query_query_imported = COUNT_QUERY.format(
-            database_name=database_name,
-            table_name=table_name,
-        ) 
-
     count_query_result = athena_service.execute_query(
-        count_query_query_imported
+        COUNT_QUERY.format(
+            database_name=database_name,
+            table_name=table_name,
+        )
     )[1]["Data"][0]["VarCharValue"]
-
+    
     cloudwatch_service.push_metric(
         metric={
             "metric_name": metric_name,
@@ -29,7 +21,6 @@ def count_query_push_metric(metric_name, database_name, table_name):
             "timestamp": datetime.now(),
         },
     )
-
 
 def latency_query_push_metric(metric_name, database_name, table_name):
 
@@ -54,7 +45,6 @@ def latency_query_push_metric(metric_name, database_name, table_name):
             "timestamp": datetime.now(),
         },
     )
-
 
 def main(event, context):
     print("Starting", output_format, "pusher lambda")
