@@ -20,8 +20,9 @@
       "PropertyGroupId": "sink.config.0",
       "PropertyMap": {
         "output.bucket.name": "flink-hudi-practica",
-        "output.format": "hudi",
-        "output.table.type": "mor"
+        "output.format": "json",
+        "output.table.type": "json",
+        "output.glue.database": "local"
       }
     }
 ]

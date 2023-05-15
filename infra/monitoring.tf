@@ -7,7 +7,7 @@ module "monitoring_hudi" {
   image_tag       = "0.0.1"
   output_format   = "hudi"
   module_name     = "hudi"
-  database_name   = var.hudi_database_name
+  database_name   = var.glue_database_name
   table_name      = var.hudi_table_name
 }
 
@@ -20,6 +20,6 @@ module "monitoring_json" {
   image_tag       = "0.0.1"
   output_format   = "json"
   module_name     = "json"
-  database_name   = var.json_database_name
+  database_name   = var.glue_database_name
   table_name      = var.json_table_name
 }

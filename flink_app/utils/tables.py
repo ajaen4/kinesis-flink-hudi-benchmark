@@ -5,6 +5,7 @@ SOURCE_SCHEMA = """
     ticker VARCHAR(6),
     price DOUBLE,
     event_time TIMESTAMP(3),
+    processing_time as PROCTIME(),
     WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
 """
 
@@ -12,8 +13,8 @@ SINK_SCHEMA = """
     event_id varchar,
     ticker VARCHAR(6),
     price DOUBLE,
-    event_time TIMESTAMP(3),
-    processing_time TIMESTAMP_LTZ(3)
+    event_time BIGINT,
+    processing_time BIGINT
 """
 
 HUDI_OPTIONS = """
@@ -30,7 +31,7 @@ HUDI_OPTIONS = """
     'hoodie.keep.min.commits' = '20',
     'hoodie.keep.max.commits' = '30',
     'hive_sync.enable' = 'true',
-    'hive_sync.db' = 'hudi',
+    'hive_sync.db' = '{glue_database}',
     'hive_sync.table' = 'ticker_hudi_{table_suffix}',
     'hive_sync.mode' = 'glue',
     'hive_sync.partition_fields' = 'ticker',
@@ -38,10 +39,11 @@ HUDI_OPTIONS = """
 """
 
 
-def get_hudi_options(hudi_table_type: str) -> str:
+def get_hudi_options(hudi_table_type: str, glue_database: str) -> str:
     return HUDI_OPTIONS.format(
         table_type=HudiTableType[hudi_table_type.lower()].value,
         table_suffix=hudi_table_type.lower(),
+        glue_database=glue_database,
     )
 
 
@@ -102,6 +104,7 @@ def create_hudi_table(
     hudi_table_type: str,
     table_name: str,
     bucket_name: str,
+    glue_database: str,
 ) -> str:
     return """
         CREATE TABLE {table_name} (
@@ -117,7 +120,7 @@ def create_hudi_table(
         table_name=table_name,
         table_schema=SINK_SCHEMA,
         bucket_name=bucket_name,
-        hudi_options=get_hudi_options(hudi_table_type),
+        hudi_options=get_hudi_options(hudi_table_type, glue_database),
         table_suffix=hudi_table_type.lower(),
     )
 
@@ -140,13 +143,19 @@ def create_sink_table(
     output_format: str,
     hudi_table_type: str,
     output_table_name: str,
-    output_bucket_name: str = None,
+    output_bucket_name: str,
+    output_glue_database: str,
 ) -> str:
     if output_format == "json":
         return create_json_table(output_table_name, output_bucket_name)
 
     if output_format == "hudi":
-        return create_hudi_table(hudi_table_type, output_table_name, output_bucket_name)
+        return create_hudi_table(
+            hudi_table_type,
+            output_table_name,
+            output_bucket_name,
+            output_glue_database,
+        )
 
     if output_format == "print":
         return create_print_table(output_table_name)

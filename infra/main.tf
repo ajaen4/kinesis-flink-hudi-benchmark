@@ -28,6 +28,7 @@ module "kda_hudi_mor" {
   hudi_table_type    = "mor"
   source_stream_name = aws_kinesis_stream.inbound_kinesis.name
   artifacts_bucket   = aws_s3_bucket.flink_artifacts_bucket.bucket
+  glue_database_name = aws_glue_catalog_database.hudi_json.name
 }
 
 module "kda_hudi_cow" {
@@ -43,6 +44,7 @@ module "kda_hudi_cow" {
   hudi_table_type    = "cow"
   source_stream_name = aws_kinesis_stream.inbound_kinesis.name
   artifacts_bucket   = aws_s3_bucket.flink_artifacts_bucket.bucket
+  glue_database_name = aws_glue_catalog_database.hudi_json.name
 }
 
 module "kda_json" {
@@ -57,4 +59,5 @@ module "kda_json" {
   output_format      = "json"
   source_stream_name = aws_kinesis_stream.inbound_kinesis.name
   artifacts_bucket   = aws_s3_bucket.flink_artifacts_bucket.bucket
+  glue_database_name = aws_glue_catalog_database.hudi_json.name
 }

@@ -13,13 +13,8 @@ variable "source_stream_name" {
   type        = string
 }
 
-variable "json_database_name" {
-  description = "Athena json database"
-  type        = string
-}
-
-variable "hudi_database_name" {
-  description = "Athena hudi database"
+variable "glue_database_name" {
+  description = "Glue Catalog database name"
   type        = string
 }
 

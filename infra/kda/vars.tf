@@ -29,6 +29,11 @@ variable "source_stream_name" {
   type        = string
 }
 
+variable "glue_database_name" {
+  description = "Glue Catalog database name"
+  type        = string
+}
+
 variable "kda_config" {
   description = "Kinesis Data Analytics configuration"
   type = object(
