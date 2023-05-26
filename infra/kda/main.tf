@@ -61,6 +61,7 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
           "output.bucket.name" = aws_s3_bucket.output_bucket.bucket
           "output.format"      = var.output_format
           "output.table.type"  = var.hudi_table_type
+          "output.glue.database" = var.glue_database_name
         }
       }
     }
@@ -103,3 +104,4 @@ resource "aws_cloudwatch_log_stream" "flink_hudi_log_stream" {
   name           = local.full_name
   log_group_name = aws_cloudwatch_log_group.flink_hudi_log_group.name
 }
+
