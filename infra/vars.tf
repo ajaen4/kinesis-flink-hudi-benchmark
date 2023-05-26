@@ -23,7 +23,12 @@ variable "json_table_name" {
   type        = string
 }
 
-variable "hudi_table_name" {
-  description = "Athena hudi table"
+variable "hudi_mor_table_name" {
+  description = "Athena hudi mor table"
+  type        = string
+}
+
+variable "hudi_cow_table_name" {
+  description = "Athena hudi cow table"
   type        = string
 }
