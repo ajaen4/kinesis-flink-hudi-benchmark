@@ -30,6 +30,7 @@ You need this so every script or deployment is done with the correct credentials
 
 - Versions:
     - Terraform = 1.1.7
+    - terraform-docs = 0.16.0
     - hashicorp/aws = 4.54.0
     - Python = 3.8
 
@@ -84,7 +85,7 @@ To deploy, the following commands must be run:
 terraform <plan/apply/destroy> -var-file=vars/flink-hudi.tfvars
 ```
 
-We will use the value copied in the previous chapter, the state bucket name, to substitute the <OUTPUT_FROM_BOOTSTRAPER_TERRAFORM> value in the infra/backend.tf file.
+We will use the value copied in the previous chapter, the state bucket name, to substitute the <OUTPUT_FROM_BOOTSTRAPER_TERRAFORM> value in the infra/backend.tf file. You will need docker and the docker daemon running in order to perform the deployment.
 
 ## Sending events with Locust
 
