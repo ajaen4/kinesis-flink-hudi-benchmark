@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 def count_query_push_metric(metric_name, database_name, table_name):
-    
+
     count_query_result = athena_service.execute_query(
         COUNT_QUERY.format(
             database_name=database_name,
@@ -24,7 +24,7 @@ def count_query_push_metric(metric_name, database_name, table_name):
 
 
 def latency_query_push_metric(metric_name, database_name, table_name):
-    
+
     latency_query_result = athena_service.execute_query(
         LATENCY_QUERY.format(
             database_name=database_name,
@@ -40,7 +40,6 @@ def latency_query_push_metric(metric_name, database_name, table_name):
             "timestamp": datetime.now(),
         },
     )
-
 
 
 def main(event, context):
