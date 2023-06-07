@@ -17,6 +17,7 @@ data "aws_s3_object" "code_location" {
 
 resource "aws_s3_bucket" "output_bucket" {
   bucket = local.full_name
+  force_destroy = true
 }
 
 resource "aws_kinesisanalyticsv2_application" "kinesisflink" {

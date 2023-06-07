@@ -2,8 +2,9 @@ aws_region            = "eu-west-1"
 artifacts_bucket_name = "flink-hudi-practica"
 source_stream_name    = "inbound_kinesis"
 glue_database_name    = "hudi"
-json_table_name       = "ticker_hudi_json"
-hudi_table_name       = "ticker_hudi_mor_ro"
+json_table_name       = "json_table"
+hudi_cow_table_name   = "ticker_hudi_cow_ro"
+hudi_mor_table_name   = "ticker_hudi_mor_ro"
 
 eks_tags = {
   terraform   = "true"
