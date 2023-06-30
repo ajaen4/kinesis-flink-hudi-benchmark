@@ -52,10 +52,10 @@ variable "kda_config" {
   )
   default = {
     runtime_environment           = "FLINK-1_15"
-    python                        = "flink_app.py"
+    python                        = "main.py"
     jarfile                       = "lib/combined.jar"
-    parallelism                   = 1
-    parallelism_per_kpu           = 1
+    parallelism                   = 6
+    parallelism_per_kpu           = 2
     stream_inipos                 = "LATEST"
     checkpoint_interval           = 12000
     min_pause_between_checkpoints = 1000

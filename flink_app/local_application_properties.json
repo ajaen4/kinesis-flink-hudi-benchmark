@@ -3,9 +3,8 @@
     {
       "PropertyGroupId": "kinesis.analytics.flink.run.options",
       "PropertyMap": {
-        "python": "flink_app.py",
+        "python": "main.py",
         "jarfile": "lib/combined.jar"
-
       }
     },
     {
@@ -20,9 +19,16 @@
       "PropertyGroupId": "sink.config.0",
       "PropertyMap": {
         "output.bucket.name": "flink-hudi-practica",
-        "output.format": "json",
-        "output.table.type": "json",
+        "output.format": "hudi",
+        "output.table.type": "mor",
         "output.glue.database": "local"
+      }
+    },
+    {
+      "PropertyGroupId": "parallelism.config.0",
+      "PropertyMap": {
+        "parallelism": 6,
+        "parallelism_kpu": 2
       }
     }
 ]

@@ -40,6 +40,7 @@ resource "helm_release" "locust" {
 }
 
 data "kubernetes_service" "locust_service" {
+  depends_on = [helm_release.locust]
   metadata {
     name      = "locust"
     namespace = "locust"
