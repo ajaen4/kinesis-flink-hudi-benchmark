@@ -1,4 +1,7 @@
 from .enums import HudiTableType
+from . import environment as env
+from . import config as cfg
+
 
 SOURCE_SCHEMA = """
     event_id varchar,
@@ -23,13 +26,19 @@ HUDI_OPTIONS = """
     'hoodie.embed.timeline.server' = 'false',
     'read.streaming.enabled' = 'true',
     'read.streaming.skip_compaction' = 'true',
-    'changelog.enabled'='true',
     'compaction.delta_seconds'='60',
     'compaction.delta_commits'='1',
     'compaction.trigger.strategy'='num_or_time',
+    'compaction.async.enabled' = 'true',
     'hoodie.cleaner.commits.retained' = '4',
+    'clean.async.enabled' = 'true',
+    'hoodie.clean.async' = 'true',
     'hoodie.keep.min.commits' = '20',
     'hoodie.keep.max.commits' = '30',
+    'write.bucket_assign.tasks' = '{base_parallelism}',
+    'clustering.tasks' = '{base_parallelism}',
+    'compaction.tasks' = '{base_parallelism}',
+    'write.tasks' = '{writer_paralelism}',
     'hive_sync.enable' = 'true',
     'hive_sync.db' = '{glue_database}',
     'hive_sync.table' = 'ticker_hudi_{table_suffix}',
@@ -39,21 +48,17 @@ HUDI_OPTIONS = """
 """
 
 
-def get_hudi_options(hudi_table_type: str, glue_database: str) -> str:
+def get_hudi_options() -> str:
     return HUDI_OPTIONS.format(
-        table_type=HudiTableType[hudi_table_type.lower()].value,
-        table_suffix=hudi_table_type.lower(),
-        glue_database=glue_database,
+        table_type=HudiTableType[cfg.output_table_type.lower()].value,
+        table_suffix=cfg.output_table_type.lower(),
+        glue_database=cfg.output_glue_database,
+        base_parallelism=env.BASE_PARALLELISM,
+        writer_paralelism=env.PARALLELISM,
     )
 
 
-def create_kinesis_table(
-    table_name: str,
-    stream_name: str,
-    region: str,
-    stream_initpos: str,
-    table_type: str,
-) -> str:
+def create_kinesis_table() -> str:
     return """
         CREATE TABLE {table_name} (
             {table_schema}
@@ -68,19 +73,20 @@ def create_kinesis_table(
             'json.timestamp-format.standard' = 'ISO-8601',
             'scan.shard.adaptivereads' = 'true',
             'scan.stream.recordpublisher' = 'EFO',
+            'scan.stream.efo.registration' = 'EAGER',
             'scan.stream.efo.consumername' = '{table_type}'
         )
     """.format(
-        table_name=table_name,
+        table_name=cfg.input_table_name,
         table_schema=SOURCE_SCHEMA,
-        stream_name=stream_name,
-        region=region,
-        stream_initpos=stream_initpos,
-        table_type=table_type,
+        stream_name=cfg.input_stream,
+        region=cfg.input_region,
+        stream_initpos=cfg.stream_initpos,
+        table_type=cfg.output_table_type,
     )
 
 
-def create_json_table(table_name: str, bucket_name: str) -> str:
+def create_json_table() -> str:
     return """
         CREATE TABLE {table_name} (
             {table_schema}
@@ -94,18 +100,13 @@ def create_json_table(table_name: str, bucket_name: str) -> str:
             'sink.rolling-policy.check-interval' = '1s'
         )
     """.format(
-        table_name=table_name,
+        table_name=cfg.output_table_name,
         table_schema=SINK_SCHEMA,
-        bucket_name=bucket_name,
+        bucket_name=cfg.output_bucket_name,
     )
 
 
-def create_hudi_table(
-    hudi_table_type: str,
-    table_name: str,
-    bucket_name: str,
-    glue_database: str,
-) -> str:
+def create_hudi_table() -> str:
     return """
         CREATE TABLE {table_name} (
             {table_schema}
@@ -117,15 +118,15 @@ def create_hudi_table(
             {hudi_options}
         )
     """.format(
-        table_name=table_name,
+        table_name=cfg.output_table_name,
         table_schema=SINK_SCHEMA,
-        bucket_name=bucket_name,
-        hudi_options=get_hudi_options(hudi_table_type, glue_database),
-        table_suffix=hudi_table_type.lower(),
+        bucket_name=cfg.output_bucket_name,
+        hudi_options=get_hudi_options(),
+        table_suffix=cfg.output_table_type.lower(),
     )
 
 
-def create_print_table(table_name: str) -> str:
+def create_print_table() -> str:
     return """
         CREATE TABLE {table_name} (
             {table_schema}
@@ -134,28 +135,17 @@ def create_print_table(table_name: str) -> str:
             'connector'='print'
         )
     """.format(
-        table_name=table_name,
+        table_name=cfg.output_table_name,
         table_schema=SINK_SCHEMA,
     )
 
 
-def create_sink_table(
-    output_format: str,
-    hudi_table_type: str,
-    output_table_name: str,
-    output_bucket_name: str,
-    output_glue_database: str,
-) -> str:
-    if output_format == "json":
-        return create_json_table(output_table_name, output_bucket_name)
+def create_sink_table() -> str:
+    if cfg.output_format == "json":
+        return create_json_table()
 
-    if output_format == "hudi":
-        return create_hudi_table(
-            hudi_table_type,
-            output_table_name,
-            output_bucket_name,
-            output_glue_database,
-        )
+    if cfg.output_format == "hudi":
+        return create_hudi_table()
 
-    if output_format == "print":
-        return create_print_table(output_table_name)
+    if cfg.output_format == "print":
+        return create_print_table()

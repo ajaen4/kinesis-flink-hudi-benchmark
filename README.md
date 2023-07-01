@@ -120,6 +120,7 @@ Some dependencies are needed for the Flink application to work properly which en
 - `flink-s3-fs-hadoop` - Allows the application to operate on top of S3.
 - `hudi-flink1.15-bundle` - Package provided by Hudi developers, with all the necessary dependencies to work with the technology.
 - `hadoop-mapreduce-client-core` - Additional dependency required for writing to Hudi to work correctly in KDA. It is possible that in future versions of the Hudi Bundle this dependency will not be needed.
+- `aws-java-sdk-glue`, `hive-common`, `hive-exec` - Necessary dependencies for the integration between Hudi and AWS Glue Catalog
 
 
 ## License

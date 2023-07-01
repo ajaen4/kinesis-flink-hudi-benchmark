@@ -64,11 +64,19 @@ resource "aws_kinesisanalyticsv2_application" "kinesisflink" {
           "output.glue.database" = var.glue_database_name
         }
       }
+
+      property_group {
+        property_group_id = "parallelism.config.0"
+        property_map = {
+          "parallelism"      = var.kda_config.parallelism
+          "parallelism_kpu"  = var.kda_config.parallelism_per_kpu
+        }
+      }
     }
 
     flink_application_configuration {
       parallelism_configuration {
-        auto_scaling_enabled = true
+        auto_scaling_enabled = false
         configuration_type   = "CUSTOM"
         parallelism          = var.kda_config.parallelism
         parallelism_per_kpu  = var.kda_config.parallelism_per_kpu
