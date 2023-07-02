@@ -24,11 +24,6 @@ variable "table_name" {
 }
 
 variable "output_format" {
-  description = "Output format of the S3 objects(hudi/json)"
-  type        = string
-}
-
-variable "module_name" {
   description = "Name of the module (hudi or json) thas will be declare the iam policy suffix"
   type        = string
 }
