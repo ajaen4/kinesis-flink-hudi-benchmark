@@ -45,7 +45,4 @@ data "kubernetes_service" "locust_service" {
     name      = "locust"
     namespace = "locust"
   }
-  depends_on = [ 
-    helm_release.locust
-   ]
 }
