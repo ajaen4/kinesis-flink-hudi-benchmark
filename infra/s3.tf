@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "flink_artifacts_bucket" {
-  bucket = var.artifacts_bucket_name
+  bucket        = var.artifacts_bucket_name
   force_destroy = true
 
 }

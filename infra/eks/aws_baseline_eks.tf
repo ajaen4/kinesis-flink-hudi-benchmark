@@ -67,10 +67,7 @@ module "eks" {
   attach_worker_cni_policy             = var.aws_baseline_eks.attach_worker_cni_policy
   worker_additional_security_group_ids = [module.sg_eks_worker_group_all.this_security_group_id]
   workers_additional_policies = [
-    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
-    "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy",
-    "arn:aws:iam::aws:policy/AmazonKinesisFullAccess",
-    "arn:aws:iam::aws:policy/AmazonKinesisAnalyticsFullAccess"
+    "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
   ]
 
   worker_groups_launch_template = [
