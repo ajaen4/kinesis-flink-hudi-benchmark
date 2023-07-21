@@ -5,7 +5,7 @@ resource "kubernetes_namespace" "karpenter" {
 }
 
 data "local_file" "helm_chart_karpenter" {
-  filename = "${path.module}/templates/karpenter.yaml"
+  filename = "${path.cwd}/eks/helm/karpenter/values.yaml"
 }
 
 resource "helm_release" "karpenter" {
@@ -73,7 +73,7 @@ module "iam_assumable_role_karpenter" {
   oidc_fully_qualified_subjects = ["system:serviceaccount:karpenter:karpenter"]
 }
 
-resource "aws_iam_role_policy" "karpenter_contoller" {
+resource "aws_iam_role_policy" "karpenter_controller" {
   name = "karpenter-policy-${local.name}"
   role = module.iam_assumable_role_karpenter.iam_role_name
 

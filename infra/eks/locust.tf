@@ -19,7 +19,7 @@ resource "kubernetes_config_map" "eks_loadtest_locustfile" {
 }
 
 data "local_file" "locust_values" {
-  filename = "${path.cwd}/eks/templates/locust.yaml"
+  filename = "${path.cwd}/eks/helm/locust/values.yaml"
 }
 
 resource "helm_release" "locust" {
@@ -37,12 +37,72 @@ resource "helm_release" "locust" {
     value = kubernetes_config_map.eks_loadtest_locustfile.metadata.0.name
   }
 
+  set {
+    name  = "worker.serviceAccountAnnotations.eks\\.amazonaws\\.com/role-arn"
+    value = module.iam_assumable_role_locust.iam_role_arn
+  }
+
+  set {
+    name  = "master.resources.requests.cpu"
+    value = "200m"
+  }
+
+  set {
+    name  = "master.resources.limits.cpu"
+    value = "500m"
+  }
+
+  set {
+    name  = "worker.resources.requests.cpu"
+    value = "200m"
+  }
+
+  set {
+    name  = "worker.resources.limits.cpu"
+    value = "500m"
+  }
+
 }
 
 data "kubernetes_service" "locust_service" {
   depends_on = [helm_release.locust]
   metadata {
     name      = "locust"
-    namespace = "locust"
+    namespace = kubernetes_namespace.locust.metadata.0.name
   }
+}
+
+module "iam_assumable_role_locust" {
+  source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+  version                       = "4.7.0"
+  create_role                   = true
+  role_name                     = "locust-controller-${local.name}"
+  provider_url                  = module.eks.cluster_oidc_issuer_url
+  oidc_fully_qualified_subjects = ["system:serviceaccount:${kubernetes_namespace.locust.metadata.0.name}:locust-worker"]
+}
+
+resource "aws_iam_role_policy" "locust_controller" {
+  name = "locust-policy-${local.name}"
+  role = module.iam_assumable_role_locust.iam_role_name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = ["kinesis:*"]
+        Effect = "Allow"
+        Resource = [
+          "*"
+        ]
+      },
+      {
+        Action = [
+          "logs:*",
+          "cloudwatch:*"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
 }

@@ -1,11 +1,10 @@
 import json
 
-import boto3
-
 import config as cfg
+from services import kinesis_client
 
 
-def get_shard_iterator(kinesis_client, stream_name):
+def get_shard_iterator(stream_name):
     kinesis_stream = kinesis_client.describe_stream(StreamName=stream_name)
     shards = kinesis_stream["StreamDescription"]["Shards"]
 
@@ -21,9 +20,8 @@ def get_shard_iterator(kinesis_client, stream_name):
 
 
 def iterate_stream(stream_name):
-    kinesis_client = boto3.client("kinesis")
 
-    shard_iterator = get_shard_iterator(kinesis_client, stream_name)
+    shard_iterator = get_shard_iterator(stream_name)
 
     while True:
         record_response = kinesis_client.get_records(ShardIterator=shard_iterator)
