@@ -64,15 +64,15 @@ This small infra deployment is to be able to use remote state with Terraform. Se
 
 cd infra/bootstraper-terraform
 terraform init
-terraform <plan/apply/destroy> -var-file=vars/bootstraper.tfvars
+terraform <plan/apply/destroy> -var-file=vars/flink-hudi.tfvars
 
 # Example
 cd infra/bootstraper-terraform
 terraform init
-terraform apply -var-file=vars/bootstraper.tfvars
+terraform apply -var-file=vars/flink-hudi.tfvars
 ```
 
-It is important that you choose wisely the variables declared in the "bootstraper-terrafom/vars/bootstraper.tfvars" file because the bucket name is formed using these.
+It is important that you choose wisely the variables declared in the "bootstraper-terrafom/vars/flink-hudi.tfvars" file because the bucket name is formed using these.
 
 There will be an output printed on the terminal's screen, this could be an example:
 
