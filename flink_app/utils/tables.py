@@ -1,5 +1,4 @@
 from .enums import HudiTableType
-from . import environment as env
 from . import config as cfg
 
 
@@ -20,23 +19,12 @@ SINK_SCHEMA = """
     processing_time BIGINT
 """
 
-HUDI_OPTIONS = """
+HUDI_COW_OPTIONS = """
     'table.type' = '{table_type}',
     'hoodie.datasource.write.recordkey.field' = 'event_id',
     'hoodie.embed.timeline.server' = 'false',
-    'read.streaming.enabled' = 'true',
-    'compaction.delta_seconds'='60',
-    'compaction.delta_commits'='1',
-    'compaction.trigger.strategy'='num_or_time',
-    'compaction.async.enabled' = 'true',
-    'hoodie.cleaner.commits.retained' = '4',
     'clean.async.enabled' = 'true',
-    'hoodie.keep.min.commits' = '20',
-    'hoodie.keep.max.commits' = '30',
-    'write.bucket_assign.tasks' = '{base_parallelism}',
-    'clustering.tasks' = '{base_parallelism}',
-    'compaction.tasks' = '{base_parallelism}',
-    'write.tasks' = '{writer_paralelism}',
+    'hoodie.clean.async' = 'true',
     'hive_sync.enable' = 'true',
     'hive_sync.db' = '{glue_database}',
     'hive_sync.table' = 'ticker_hudi_{table_suffix}',
@@ -45,14 +33,36 @@ HUDI_OPTIONS = """
     'hive_sync.use_jdbc' = 'false'
 """
 
+HUDI_MOR_OPTIONS = """
+    'table.type' = '{table_type}',
+    'hoodie.datasource.write.recordkey.field' = 'event_id',
+    'hoodie.embed.timeline.server' = 'false',
+    'hoodie.compact.inline'='true',
+    'hoodie.compact.inline.max.delta.seconds'='60',
+    'hoodie.compact.inline.max.delta.commits'='1',
+    'compaction.trigger.strategy'='num_or_time',
+    'clean.async.enabled' = 'true',
+    'hoodie.clean.async' = 'true',
+    'hive_sync.enable' = 'true',
+    'hive_sync.db' = '{glue_database}',
+    'hive_sync.table' = 'ticker_hudi_{table_suffix}',
+    'hive_sync.mode' = 'glue',
+    'hive_sync.partition_fields' = 'ticker',
+    'hive_sync.use_jdbc' = 'false'
+"""
 
 def get_hudi_options() -> str:
+    table_suffix = cfg.output_table_type.lower()
+
+    if table_suffix == "mor":
+        HUDI_OPTIONS = HUDI_MOR_OPTIONS
+    if table_suffix == "cow":
+        HUDI_OPTIONS = HUDI_COW_OPTIONS
+
     return HUDI_OPTIONS.format(
-        table_type=HudiTableType[cfg.output_table_type.lower()].value,
-        table_suffix=cfg.output_table_type.lower(),
+        table_type=HudiTableType[table_suffix].value,
+        table_suffix=table_suffix,
         glue_database=cfg.output_glue_database,
-        base_parallelism=env.BASE_PARALLELISM,
-        writer_paralelism=env.PARALLELISM,
     )
 
 

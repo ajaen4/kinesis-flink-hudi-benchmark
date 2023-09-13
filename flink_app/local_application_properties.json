@@ -20,7 +20,7 @@
       "PropertyMap": {
         "output.bucket.name": "flink-hudi-practica",
         "output.format": "hudi",
-        "output.table.type": "mor",
+        "output.table.type": "cow",
         "output.glue.database": "local"
       }
     },
