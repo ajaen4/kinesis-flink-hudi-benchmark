@@ -19,14 +19,7 @@ Articles:
 
 ## Requirements
 
-- You must own an AWS account and have an Access Key to be able to authenticate. You must create a profile and substitute in all files where "practica_cloud" is present and put the previous credentials in it. These are the files were you need to substitute the previous string:
-    - event_generation/.env
-    - flink_app/local/.env
-    - infra/backend.tf
-    - infra/provider.tf
-    - infra/bootstraper-terraform/providers.tf
-
-You need this so every script or deployment is done with the correct credentials. See [here](https://docs.aws.amazon.com/cli/latest/reference/configure/) steps to create it.
+- You must own an AWS account and have an Access Key to be able to authenticate. You need this so every script or deployment is done with the correct credentials. See [here](https://docs.aws.amazon.com/cli/latest/reference/configure/) steps to configure your credentials.
 
 - Versions:
     - Terraform = 1.1.7
@@ -37,7 +30,7 @@ You need this so every script or deployment is done with the correct credentials
 ## Infrastructure deployed
 
 This code will deploy the following infraestructure inside AWS:
-- 2 Kinesis Flink Applications
+- 3 Kinesis Flink Applications
 - 1 Kinesis Data Streams
 - 3 S3 bucket
     - Deployment bucket
@@ -46,7 +39,7 @@ This code will deploy the following infraestructure inside AWS:
     - Hudi MOR data bucket
 - 1 EKS Cluster
 - 1 Locust app deployed in the EKS Cluster
-- 2 Monitoring Lambdas (1 per output type)
+- 3 Monitoring Lambdas (1 per output type)
 
 ## Installation
 
@@ -55,6 +48,25 @@ Follow the instructions [here](https://learn.hashicorp.com/tutorials/terraform/i
 Follow the instructions [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) to install the AWS CLI
 
 Follow the instructions [here](https://www.python.org/downloads/release/python-3816/) to install Python 3.8
+
+In order to run any python code locally you will need to create a virtual env first and install all requirements:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+In the case of using Microsoft:
+
+```bash
+python3 -m venv .venv
+.\env\Scripts\activate
+```
+
+And to install all required packages:
+
+```bash
+make install
+```
 
 ## bucket and DynamoDB for terraform state deployment
 
@@ -84,7 +96,13 @@ Please copy it, we will be using it in the next chapter.
 
 ## Infrastructure deployment
 
-To be able to deploy the infrastructure it's necessary to fill in the variables file ("infra/vars.tfv") and the backend config for the remote state ("terraform.tf").
+### Instance types
+
+**Important:** we have set some big and expensive instances in the vars/flink-hudi.tfvars variables file. We recommend you set this variables appropiately to not incurr in excessive costs.
+
+### Commands
+
+To be able to deploy the infrastructure it's necessary to fill in the variables file ("vars/flink-hudi.tfvars") and the backend config for the remote state ("terraform.tf").
 
 To deploy, the following commands must be run:
 
@@ -101,8 +119,7 @@ We will use the value copied in the previous chapter, the state bucket name, to 
 Once deployed, you can make use of the provided Locust application to send events to the Kinesis Stream. Just make sure that the environment variables are properly configured in ```event_generation/.env``` (add AWS_PROFILE if you want to use a different one from the default) and run:
 
 ```bash
-cd event_generation
-locust --tags send
+make send-records
 ```
 
 A Locust process will start and you can access its UI in http://0.0.0.0:8089/. You can modify number of users and rate, but the defaults will suffice for testing the application.

@@ -25,7 +25,6 @@ locals {
 resource "aws_s3_bucket" "this" {
   count  = var.remote_bucket == "" ? 1 : 0
   bucket = local.bucket
-  acl    = "log-delivery-write"
   tags = merge(
     var.tags,
     {
